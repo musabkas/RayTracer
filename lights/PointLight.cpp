@@ -32,6 +32,6 @@ Vector3D PointLight::get_direction(const Point3D& p) const {
     return dir;
 }
 
-RGBColor PointLight::L() const {
+RGBColor PointLight::L(const Vector3D& d) const {
     return ls * cl;
 }

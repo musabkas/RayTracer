@@ -26,7 +26,8 @@ Diffuse &Diffuse::operator=(const Diffuse &other){
 RGBColor Diffuse::shade(const ShadeInfo &sinfo, std::vector<Light *> &lights) const {
     RGBColor color = RGBColor();
     for (Light* light_ptr : lights) {
-        color += lambertian_brdf.f(light_ptr->get_direction(sinfo.hit_point), sinfo.ray.d, sinfo.normal) * light_ptr->L() * std::max(sinfo.normal * light_ptr->get_direction(sinfo.hit_point), 0.0);
+        Vector3D dir = light_ptr->get_direction(sinfo.hit_point);
+        color += lambertian_brdf.f(light_ptr->get_direction(sinfo.hit_point), sinfo.ray.d, sinfo.normal) * light_ptr->L(dir) * std::max(sinfo.normal * dir, 0.0);
     }
     color.clamp();
     return color;

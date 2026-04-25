@@ -18,5 +18,5 @@ public:
     virtual ~Light() = default;
 
     virtual Vector3D get_direction(const Point3D& p) const = 0;
-    virtual RGBColor L() const = 0;
+    virtual RGBColor L(const Vector3D& d) const = 0;
 };

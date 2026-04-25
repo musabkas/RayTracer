@@ -29,7 +29,8 @@ Metal &Metal::operator=(const Metal &other){
 RGBColor Metal::shade(const ShadeInfo &sinfo, std::vector<Light *> &lights) const {
     RGBColor color = RGBColor();
     for (Light* light_ptr : lights) {
-        color += glossy_brdf.f(sinfo.ray.d, light_ptr->get_direction(sinfo.hit_point), sinfo.normal) * light_ptr->L();
+        Vector3D dir = light_ptr->get_direction(sinfo.hit_point);
+        color += glossy_brdf.f(sinfo.ray.d, light_ptr->get_direction(sinfo.hit_point), sinfo.normal) * light_ptr->L(dir) * std::max(sinfo.normal * dir, 0.0);
     }
     color.clamp();
     return color;

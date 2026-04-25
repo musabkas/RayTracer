@@ -8,6 +8,7 @@
 #include "../cameras/Perspective.hpp"
 
 #include "../lights/PointLight.hpp"
+#include "../lights/SpotLight.hpp"
 
 #include "../geometry/Plane.hpp"
 #include "../geometry/Sphere.hpp"
@@ -43,8 +44,12 @@ World::build(void) {
   sampler_ptr = new Simple(camera_ptr, &vplane);
 
   // Point Light
-  PointLight* light_ptr = new PointLight(1.0, RGBColor(1.0), Point3D(10, 0, 20));
-  add_light(light_ptr);
+  PointLight* point_light_ptr = new PointLight(1.0, RGBColor(1.0), Point3D(10, 0, 20));
+  add_light(point_light_ptr);
+  
+  // Point Light
+  SpotLight* spot_light_ptr = new SpotLight(0.5, RGBColor(1.0), Point3D(0, 20, 0), Vector3D(0, -1.0, 0), 30);
+  add_light(spot_light_ptr);
 	
   // sphere
   Sphere* sphere_ptr = new Sphere(Point3D(-3, 2, 0), 5); 
