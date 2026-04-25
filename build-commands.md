@@ -30,3 +30,8 @@ Chapter 14:
 ```
 g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp materials/*.cpp build/buildChapter14.cpp -o raytracer.out
 ```
+
+BRDF:
+```
+g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp build/buildbrdf.cpp -o raytracer.out
+```
