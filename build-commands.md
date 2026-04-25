@@ -14,6 +14,10 @@ Chapter 14:
 ```
 g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp materials/*.cpp build/buildChapter14.cpp -o raytracer.exe
 
+BRDF w/ Lights:
+```
+g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp lights/*.cpp build/buildbrdf.cpp -o raytracer.exe
+```
 
 ### Mac
 Hello World:
@@ -31,7 +35,7 @@ Chapter 14:
 g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp materials/*.cpp build/buildChapter14.cpp -o raytracer.out
 ```
 
-BRDF:
+BRDF w/ Lights:
 ```
-g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp build/buildbrdf.cpp -o raytracer.out
+g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp lights/*.cpp build/buildbrdf.cpp -o raytracer.out
 ```

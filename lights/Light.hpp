@@ -1,14 +1,22 @@
 #pragma once
 
-class Vector3D;
-class RGBColor;
+#include "../utilities/RGBColor.hpp"
+#include "../utilities/Vector3D.hpp"
+
+class Point3D;
 
 class Light {
 protected:
     float ls; // light intensity
-    float cl; // light color
+    RGBColor cl; // light color
 
 public:
-    virtual Vector3D get_direction() const = 0;
+    Light() = default;
+
+    Light(const Light &other) = default;
+    Light &operator=(const Light &other) = default;
+    virtual ~Light() = default;
+
+    virtual Vector3D get_direction(const Point3D& p) const = 0;
     virtual RGBColor L() const = 0;
 };

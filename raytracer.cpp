@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
         float weight = ray.w; // ray weight for the pixel.
         ShadeInfo sinfo = world.hit_objects(ray);
         if (sinfo.hit) {
-          pixel_color += weight * sinfo.material_ptr->shade(sinfo);
+          pixel_color += weight * sinfo.material_ptr->shade(sinfo, world.lights);
         }
 	else {
           pixel_color += weight * world.bg_color;

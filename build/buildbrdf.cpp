@@ -7,6 +7,8 @@
 
 #include "../cameras/Perspective.hpp"
 
+#include "../lights/PointLight.hpp"
+
 #include "../geometry/Plane.hpp"
 #include "../geometry/Sphere.hpp"
 #include "../geometry/Triangle.hpp"
@@ -38,6 +40,10 @@ World::build(void) {
   // Camera and sampler.
   set_camera(new Perspective(0, 0, 20));
   sampler_ptr = new Simple(camera_ptr, &vplane);
+
+  // Point Light
+  PointLight* light_ptr = new PointLight(1.0, RGBColor(1.0), Point3D(10, 0, 20));
+  add_light(light_ptr);
 	
   // sphere
   Sphere* sphere_ptr = new Sphere(Point3D(-3, 2, 0), 5); 

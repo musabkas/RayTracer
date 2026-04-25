@@ -44,6 +44,7 @@ public:
   bool operator==(const RGBColor &c) const;    // equality.
   RGBColor powc(float p) const;                // raise components to a power.
   float average() const;                       // the average of the components.
+  void clamp();                                // clamp rgb components b/w 0 and 1
 };
 
 // Multiplication by a float.

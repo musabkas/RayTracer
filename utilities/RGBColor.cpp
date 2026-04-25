@@ -74,3 +74,9 @@ float RGBColor::average() const {
 RGBColor operator*(const float a, const RGBColor & c){
     return c * a;
 }
+
+void RGBColor::clamp() {
+    r = std::max(std::min(r, 1.0f), 0.0f);
+    g = std::max(std::min(g, 1.0f), 0.0f);
+    b = std::max(std::min(b, 1.0f), 0.0f);
+}
