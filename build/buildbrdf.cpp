@@ -15,6 +15,7 @@
 
 #include "../materials/Cosine.hpp"
 #include "../materials/Diffuse.hpp"
+#include "../materials/Metal.hpp"
 
 #include "../samplers/Simple.hpp"
 
@@ -47,7 +48,7 @@ World::build(void) {
 	
   // sphere
   Sphere* sphere_ptr = new Sphere(Point3D(-3, 2, 0), 5); 
-  sphere_ptr->set_material(new Diffuse(red));
+  sphere_ptr->set_material(new Metal(red, 2.0, 4.0));
   add_geometry(sphere_ptr);
   
   // triangle

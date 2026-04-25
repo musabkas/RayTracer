@@ -18,9 +18,6 @@ public:
   // Desctructor.
   virtual ~Lambertian() = default;
 
-  /* Returned shade is: rho / pi
-     \theta is the angle between the normal at the hit pont and the ray.
-     Assuming unit vectors, cos \theta = dot product of normal and -ray.dir.
-  */
+  /* Returned shade is: rho / pi -> but we exclude pi as it is a constant */
   virtual RGBColor f(const Vector3D& wi, const Vector3D& wo, const Vector3D& n) const override;
 };
