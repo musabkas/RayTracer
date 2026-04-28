@@ -14,12 +14,13 @@
 
 #include "../materials/Cosine.hpp"
 
-#include "../samplers/Simple.hpp"
+#include "../samplers/Jittered.hpp"
 
 #include "../utilities/Constants.hpp"
 #include "../utilities/Vector3D.hpp"
 
 #include "../world/World.hpp"
+#include "../tracers/Basic.hpp"
 
 void
 World::build(void) {
@@ -37,7 +38,8 @@ World::build(void) {
   
   // camera and sampler.
   set_camera(new Parallel(0, 0, -1));
-  sampler_ptr = new Simple(camera_ptr, &vplane);
+  sampler_ptr = new Jittered(camera_ptr, &vplane, 16);
+  set_tracer(new Basic());
 	
   // colors
   RGBColor yellow(1, 1, 0);  // yellow

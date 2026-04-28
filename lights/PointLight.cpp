@@ -35,3 +35,12 @@ Vector3D PointLight::get_direction(const Point3D& p) const {
 RGBColor PointLight::L(const Vector3D& d) const {
     return ls * cl;
 }
+
+double PointLight::get_distance(const Point3D& hit_point) const {
+    // Depending on your vector math library, this might be:
+    // return (location - hit_point).length();
+    // OR
+    // return distance(location, hit_point);
+    
+    return (pos - hit_point).length(); 
+  }

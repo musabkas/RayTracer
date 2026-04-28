@@ -1,5 +1,6 @@
 #include "Glossy.hpp"
 #include "../utilities/ShadeInfo.hpp"
+#include <cmath>
 
 Glossy::Glossy(){
     rho = RGBColor();

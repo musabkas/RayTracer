@@ -18,11 +18,12 @@
 #include "../materials/Diffuse.hpp"
 #include "../materials/Metal.hpp"
 
-#include "../samplers/Simple.hpp"
+#include "../samplers/Jittered.hpp"
 
 #include "../utilities/Constants.hpp"
 
 #include "../world/World.hpp"
+#include "../tracers/Shadow.hpp"
 
 void
 World::build(void) {
@@ -41,19 +42,20 @@ World::build(void) {
   
   // Camera and sampler.
   set_camera(new Perspective(0, 0, 20));
-  sampler_ptr = new Simple(camera_ptr, &vplane);
+  sampler_ptr = new Jittered(camera_ptr, &vplane, 16);
+  set_tracer(new Shadow());
 
   // Point Light
-  PointLight* point_light_ptr = new PointLight(1.0, RGBColor(1.0), Point3D(10, 0, 20));
+  PointLight* point_light_ptr = new PointLight(1.5, RGBColor(1.0), Point3D(10, 0, 20));
   add_light(point_light_ptr);
   
   // Point Light
-  SpotLight* spot_light_ptr = new SpotLight(0.5, RGBColor(1.0), Point3D(0, 20, 0), Vector3D(0, -1.0, 0), 30);
+  SpotLight* spot_light_ptr = new SpotLight(1.0, RGBColor(1.0), Point3D(10, 20, 0), Vector3D(-0.5, -1.0, 0), 30);
   add_light(spot_light_ptr);
 	
   // sphere
   Sphere* sphere_ptr = new Sphere(Point3D(-3, 2, 0), 5); 
-  sphere_ptr->set_material(new Metal(red, 2.0, 4.0));
+  sphere_ptr->set_material(new Metal(red, 1.0, 4.0));
   add_geometry(sphere_ptr);
   
   // triangle
@@ -65,7 +67,7 @@ World::build(void) {
   add_geometry(triangle_ptr);
 
   // plane
-  Plane* plane_ptr = new Plane(Point3D(0,1,0), Vector3D(0, 10, 2)); 
+  Plane* plane_ptr = new Plane(Point3D(0,1,0), Vector3D(0, 20, 4)); 
   plane_ptr->set_material(new Diffuse(green));  // green
   add_geometry(plane_ptr);
 }

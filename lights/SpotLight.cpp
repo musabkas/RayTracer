@@ -1,12 +1,13 @@
 #include "SpotLight.hpp"
 #include "../utilities/RGBColor.hpp"
+#include <cmath>
 
 SpotLight::SpotLight(){
     ls = 1.0;
     cl = RGBColor(1.0);
     pos = Point3D();
     dir = Vector3D(0, 0, 1);
-    theta = 20;
+    theta = 20 * M_PI / 180.0;
 }
 
 SpotLight::SpotLight(float ls, RGBColor cl, Point3D pos, Vector3D dir, float theta) {
@@ -47,4 +48,8 @@ RGBColor SpotLight::L(const Vector3D& d) const { // needs to depend on theta?
     } else {
         return RGBColor();
     }
+}
+
+double SpotLight::get_distance(const Point3D& hit_point) const {
+    return (pos - hit_point).length();
 }

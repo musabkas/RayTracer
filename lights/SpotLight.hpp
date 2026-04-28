@@ -20,4 +20,5 @@ public:
 
     virtual Vector3D get_direction(const Point3D& p) const override;
     virtual RGBColor L(const Vector3D& d) const override;
+    virtual double get_distance(const Point3D& hit_point) const override;
 };

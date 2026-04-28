@@ -26,7 +26,7 @@ Metal &Metal::operator=(const Metal &other){
     return *this;
 }
 
-RGBColor Metal::shade(const ShadeInfo &sinfo, std::vector<Light *> &lights) const {
+RGBColor Metal::shade(const ShadeInfo &sinfo, const std::vector<Light *> &lights) const {
     RGBColor color = RGBColor();
     for (Light* light_ptr : lights) {
         Vector3D dir = light_ptr->get_direction(sinfo.hit_point);

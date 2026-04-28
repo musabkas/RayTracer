@@ -1,5 +1,6 @@
 #include "Vector3D.hpp"
 #include "Point3D.hpp"
+#include <cmath>
 
 Vector3D::Vector3D() { // set vector to (0, 0, 0).
     this->x = 0;

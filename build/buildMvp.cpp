@@ -5,9 +5,10 @@
 #include "../geometry/Sphere.hpp"
 #include "../geometry/Triangle.hpp"
 #include "../materials/Cosine.hpp"
-#include "../samplers/Simple.hpp"
+#include "../samplers/Jittered.hpp"
 #include "../utilities/Constants.hpp"
 #include "../world/World.hpp"
+#include "../tracers/Basic.hpp"
 
 void World::build(void) {
   // View plane  .
@@ -38,7 +39,8 @@ void World::build(void) {
 
   // Camera and sampler.
   set_camera(new Parallel(0, 0, -1));
-  sampler_ptr = new Simple(camera_ptr, &vplane);
+  sampler_ptr = new Jittered(camera_ptr, &vplane, 16);
+  set_tracer(new Basic());
 
   for (int x = -8; x <= 8; x += 2) {
     for (int y = -8; y <= 8; y += 2) {

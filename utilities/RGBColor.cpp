@@ -1,4 +1,5 @@
 #include "RGBColor.hpp"
+#include <cmath>
 
 RGBColor::RGBColor(){
     this->r = 0;

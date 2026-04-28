@@ -2,7 +2,7 @@
 /**
    This builds a simple scene that consists of a sphere, a triangle, and a
    plane.
-   Parallel viewing is used with a single sample per pixel.
+   Parallel viewing is used with jittered sampling per pixel.
 */
 
 #include "../cameras/Perspective.hpp"
@@ -13,11 +13,12 @@
 
 #include "../materials/Cosine.hpp"
 
-#include "../samplers/Simple.hpp"
+#include "../samplers/Jittered.hpp"
 
 #include "../utilities/Constants.hpp"
 
 #include "../world/World.hpp"
+#include "../tracers/Basic.hpp"
 
 void
 World::build(void) {
@@ -36,7 +37,8 @@ World::build(void) {
   
   // Camera and sampler.
   set_camera(new Perspective(0, 0, 20));
-  sampler_ptr = new Simple(camera_ptr, &vplane);
+  sampler_ptr = new Jittered(camera_ptr, &vplane, 16);
+  set_tracer(new Basic());
 	
   // sphere
   Sphere* sphere_ptr = new Sphere(Point3D(-3, 2, 0), 5); 

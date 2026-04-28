@@ -22,6 +22,7 @@ class Light;
 class Ray;
 class Sampler;
 class ShadeInfo;
+class Tracer;
 
 class World {
 public:
@@ -31,6 +32,7 @@ public:
   std::vector<Light *> lights;
   Camera *camera_ptr;
   Sampler *sampler_ptr;
+  Tracer *tracer_ptr;
 
 public:
   // Constructors.
@@ -43,6 +45,7 @@ public:
   void add_geometry(Geometry *geom_ptr);
   void add_light(Light *light_ptr);
   void set_camera(Camera *c_ptr);
+  void set_tracer(Tracer *t_ptr);
 
   // Build scene - add all geometry, materials, lights, viewplane, camera,
   // samplers, and acceleration structures
@@ -50,5 +53,5 @@ public:
 
   // Returns appropriate shading information corresponding to intersection of
   // the ray with the scene geometry.
-  ShadeInfo hit_objects(const Ray &ray);
+  ShadeInfo hit_objects(const Ray &ray) const;
 };

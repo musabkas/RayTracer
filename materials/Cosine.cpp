@@ -22,6 +22,6 @@ Cosine &Cosine::operator=(const Cosine &other){
     return *this;
 }
 
-RGBColor Cosine::shade(const ShadeInfo &sinfo, std::vector<Light *> &lights) const {
+RGBColor Cosine::shade(const ShadeInfo &sinfo, const std::vector<Light *> &lights) const {
     return color * (sinfo.normal * -sinfo.ray.d);
 }

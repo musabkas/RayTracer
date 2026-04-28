@@ -19,4 +19,5 @@ public:
 
     virtual Vector3D get_direction(const Point3D& p) const = 0;
     virtual RGBColor L(const Vector3D& d) const = 0;
+    virtual double get_distance(const Point3D& hit_point) const = 0;
 };
