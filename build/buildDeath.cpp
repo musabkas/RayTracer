@@ -81,7 +81,7 @@ World::build(void) {
   bg_color = black; 
   
   // Camera and sampler.
-  set_camera(new Perspective(0, 0, 120));
+  set_camera(new Perspective(0, 0, 0));
   
   sampler_ptr = new Jittered(camera_ptr, &vplane, 4);
   set_tracer(new Shadow());
