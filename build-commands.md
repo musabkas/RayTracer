@@ -19,7 +19,7 @@ BRDF w/ Lights:
 g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp lights/*.cpp tracers/*.cpp build/buildbrdf.cpp -o raytracer.exe
 ```
 
-### Mac
+### Mac/Linux
 Hello World:
 ```
 g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp tracers/*.cpp build/buildHelloWorld.cpp -o raytracer.out

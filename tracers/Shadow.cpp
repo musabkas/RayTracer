@@ -18,19 +18,13 @@ RGBColor Shadow::trace_ray(const Ray &ray, const World &world) const {
       
       if (cos_angle > 0.0) {
         
-        // 1. Offset along the surface normal (Fixed previously)
         Point3D shadow_origin = sinfo.hit_point + sinfo.normal * kEpsilon;
         Ray shadow_ray(shadow_origin, light_dir);
         
         ShadeInfo shadow_info = world.hit_objects(shadow_ray);
-        
-        // 2. NEW FIX: Calculate the actual distance to the light source.
-        // If your Light class doesn't have this, you will need to add it!
-        // For point lights: (light->position - sinfo.hit_point).length()
-        // For directional lights: Return a massive number like kHugeValue
+
         double distance_to_light = light->get_distance(sinfo.hit_point); 
         
-        // 3. Cap the shadow check at distance_to_light instead of 10000.0f
         bool is_in_shadow = (shadow_info.hit && 
                              shadow_info.t > kEpsilon && 
                              shadow_info.t < distance_to_light);

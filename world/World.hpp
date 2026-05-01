@@ -23,6 +23,7 @@ class Ray;
 class Sampler;
 class ShadeInfo;
 class Tracer;
+class BVHTree;
 
 class World {
 public:
@@ -33,6 +34,7 @@ public:
   Camera *camera_ptr;
   Sampler *sampler_ptr;
   Tracer *tracer_ptr;
+  BVHTree *bvh_tree;
 
 public:
   // Constructors.
@@ -50,6 +52,9 @@ public:
   // Build scene - add all geometry, materials, lights, viewplane, camera,
   // samplers, and acceleration structures
   void build();
+
+  // Build the BVH tree from current geometry
+  void build_bvh();
 
   // Returns appropriate shading information corresponding to intersection of
   // the ray with the scene geometry.

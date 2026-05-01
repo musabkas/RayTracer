@@ -63,6 +63,6 @@ bool Sphere::hit(const Ray &ray, float &t, ShadeInfo &s) const {
     return false;
 }
 
-BBox Sphere::getBBox() const { // unimplemented optimization
-    return BBox();
+BBox Sphere::getBBox() const {
+    return BBox(Point3D(c.x - r, c.y - r, c.z - r), Point3D(c.x + r, c.y + r, c.z + r));
 }
