@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 
 #include "materials/Cosine.hpp"
 
@@ -36,6 +37,19 @@ int main(int argc, char **argv) {
       // Save color to image.
       image.set_pixel(x, y, pixel_color);
       // std::cout << pixel_color << "\n";
+      // --- PROGRESS BAR CODE START ---
+        float progress = (float)(x + 1) / viewplane.hres;
+        int barWidth = 40;
+
+        std::cout << "\r["; // \r returns cursor to start of line
+        int pos = barWidth * progress;
+        for (int i = 0; i < barWidth; ++i) {
+            if (i < pos) std::cout << "=";
+            else if (i == pos) std::cout << ">";
+            else std::cout << " ";
+        }
+        std::cout << "] " << int(progress * 100.0) << " %" << std::flush;
+        // --- PROGRESS BAR CODE END ---
     }
   }
   // Write image to file.

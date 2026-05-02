@@ -1,6 +1,7 @@
 #include "World.hpp"
 #include "../utilities/ShadeInfo.hpp"
 #include "../geometry/Geometry.hpp"
+#include "../geometry/BVHTree.hpp"
 #include "../tracers/Tracer.hpp"
 
 World::World(){
@@ -11,6 +12,7 @@ World::World(){
     camera_ptr = nullptr;
     sampler_ptr = nullptr;
     tracer_ptr = nullptr;
+    bvh_tree = nullptr;
 }
 
 void World::add_geometry(Geometry *geom_ptr) {
@@ -36,16 +38,34 @@ World::~World() {
     if (tracer_ptr) {
         delete tracer_ptr;
     }
+    if (bvh_tree) {
+        delete bvh_tree;
+    }
 }
 
 // hit objects
 ShadeInfo World::hit_objects(const Ray &ray) const {
+    // Use BVH tree if available, otherwise fall back to linear search
+    if (bvh_tree) {
+        return bvh_tree->hit(ray, *this);
+    }
+    
+    // Fallback for scenes without BVH
     float t = 1e5;
-    ShadeInfo s = ShadeInfo(*this);
+    ShadeInfo s(*this);
     s.hit = false;
     
     for (Geometry* geom_ptr : geometry){
         geom_ptr->hit(ray, t, s);
     }
     return s;
+}
+
+void World::build_bvh() {
+    if (!geometry.empty()) {
+        if (bvh_tree) {
+            delete bvh_tree;
+        }
+        bvh_tree = new BVHTree(geometry, *this);
+    }
 }

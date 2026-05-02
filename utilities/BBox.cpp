@@ -72,12 +72,12 @@ bool BBox::hit(const Ray &ray, float &t_enter, float &t_exit) const {
 
     t_enter = std::max(tx0, std::max(ty0, tz0));
     t_exit = std::min(tx1, std::min(ty1, tz1));
-    return t_enter >= t_exit;
+    return t_enter < t_exit;
 }
 
 void BBox::extend(const BBox& b){
     pmin = min(pmin, b.pmin);
-    pmax = min(pmax, b.pmax);
+    pmax = max(pmax, b.pmax);
 }
 
 void BBox::extend(Geometry* g){
