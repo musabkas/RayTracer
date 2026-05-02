@@ -104,7 +104,7 @@ RGBColor Diffuse::path_shade(ShadeInfo& sr) {
     RGBColor L_indirect = sr.w->tracer_ptr->trace_ray(bounce_ray, *(sr.w));
 
     // Extract the (cd * kd) base color
-    RGBColor f = lambertian_brdf.f(wi, sr.ray.d, sr.normal) * 3.14159265359f; 
+    RGBColor f = lambertian_brdf.f(wi, sr.ray.d, sr.normal); 
     
     // Combine Direct + (Indirect / survival_prob)
     return L_direct + ((L_indirect * f) / survival_prob);

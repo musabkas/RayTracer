@@ -33,9 +33,9 @@ void buildMengerSponge(const Point3D& center, float size, int depth, World* worl
     // Base case: place a sphere when we hit the bottom of the recursion tree
     if (depth == 0) {
         // Psychedelic coordinate-based coloring
-        float r = 0.5 + 0.0 * std::sin(center.x * 0.8);
-        float g = 0.5 + 0.0 * std::sin(center.y * 0.8);
-        float b = 0.5 + 0.0 * std::sin(center.z * 0.8);
+        float r = 0.5 + 0.5 * std::sin(center.x * 0.8);
+        float g = 0.5 + 0.5 * std::sin(center.y * 0.8);
+        float b = 0.5 + 0.5 * std::sin(center.z * 0.8);
         
         Sphere* sphere_ptr = new Sphere(center, size * 0.5); 
         sphere_ptr->set_material(new Diffuse(RGBColor(r, g, b)));
@@ -84,7 +84,7 @@ World::build(void) {
   // Camera and sampler.
   set_camera(new Perspective(0, 0, 0));
   
-  sampler_ptr = new Jittered(camera_ptr, &vplane, 256);
+  sampler_ptr = new Jittered(camera_ptr, &vplane, 64);
   set_tracer(new PathTrace());
 
 //   // Faked Directional Light ("The Sun")
@@ -108,7 +108,7 @@ RectangularLight* area_light = new RectangularLight(corner, edge1, edge2, white,
 add_light(area_light);
 // Build the Fractal (Size 100, Depth 3)
 // Adds all geometry spheres to the world
-buildMengerSponge(Point3D(0, 0, 50), 50.0, 1, this);
+buildMengerSponge(Point3D(0, 0, 50), 100.0, 3, this);
 
 // Build the BVH tree for efficient ray tracing
 build_bvh();
