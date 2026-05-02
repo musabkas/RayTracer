@@ -26,4 +26,5 @@ public:
      Assuming unit vectors, cos \theta = dot product of normal and -ray.dir.
   */
   virtual RGBColor shade(const ShadeInfo &sinfo, const std::vector<Light *> &lights) const override;
+  virtual RGBColor path_shade(ShadeInfo& sr) override;
 };

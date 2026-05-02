@@ -24,7 +24,7 @@
 
 #include "../world/World.hpp"
 #include "../tracers/Shadow.hpp"
-
+#include ".../tracers/PathTrace.hpp"
 void
 World::build(void) {
   // View plane  .
@@ -43,7 +43,7 @@ World::build(void) {
   // Camera and sampler.
   set_camera(new Perspective(0, 0, 20));
   sampler_ptr = new Jittered(camera_ptr, &vplane, 16);
-  set_tracer(new Shadow());
+  set_tracer(new PathTrace());
 
   // Point Light
   PointLight* point_light_ptr = new PointLight(1.5, RGBColor(1.0), Point3D(10, 0, 20));

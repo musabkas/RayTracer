@@ -23,8 +23,9 @@
 #include "../utilities/Constants.hpp"
 
 #include "../world/World.hpp"
-#include "../tracers/Shadow.hpp"
-
+// #include "../tracers/Shadow.hpp"
+#include "../tracers/PathTrace.hpp"
+#include "../lights/RectangularLight.hpp"
 
 // Recursive function to generate the Menger Sponge structure.
 // Adds sphere geometries directly to the world's geometry list.
@@ -32,9 +33,9 @@ void buildMengerSponge(const Point3D& center, float size, int depth, World* worl
     // Base case: place a sphere when we hit the bottom of the recursion tree
     if (depth == 0) {
         // Psychedelic coordinate-based coloring
-        float r = 0.5 + 0.1 * std::sin(center.x * 0.8);
-        float g = 0.5 + 0.1 * std::sin(center.y * 0.8);
-        float b = 0.5 + 0.1 * std::sin(center.z * 0.8);
+        float r = 0.5 + 0.2 * std::sin(center.x * 0.8);
+        float g = 0.5 + 0.2 * std::sin(center.y * 0.8);
+        float b = 0.5 + 0.2 * std::sin(center.z * 0.8);
         
         Sphere* sphere_ptr = new Sphere(center, size * 0.5); 
         sphere_ptr->set_material(new Diffuse(RGBColor(r, g, b)));
@@ -74,8 +75,8 @@ World::build(void) {
   vplane.bottom_right.x = 10;
   vplane.bottom_right.y = -10;
   vplane.bottom_right.z = 10;
-  vplane.hres = 480;
-  vplane.vres = 360;
+  vplane.hres = 1920;
+  vplane.vres = 1080;
 
   // Background color
   bg_color = bg; 
@@ -83,25 +84,32 @@ World::build(void) {
   // Camera and sampler.
   set_camera(new Perspective(0, 0, 0));
   
-  sampler_ptr = new Jittered(camera_ptr, &vplane, 4);
-  set_tracer(new Shadow());
+  sampler_ptr = new Jittered(camera_ptr, &vplane, 256);
+  set_tracer(new PathTrace());
 
-  // Faked Directional Light ("The Sun")
-  // We place a PointLight extremely far away so its rays arrive essentially parallel.
-  // The high Y and Z values give it a nice angled downward trajectory.
-  PointLight* sun_light_ptr = new PointLight(2.0, white, Point3D(5000, 10000, 5000));
-  add_light(sun_light_ptr);
+//   // Faked Directional Light ("The Sun")
+//   // We place a PointLight extremely far away so its rays arrive essentially parallel.
+//   // The high Y and Z values give it a nice angled downward trajectory.
+//   PointLight* sun_light_ptr = new PointLight(2.0, white, Point3D(5000, 10000, 5000));
+//   add_light(sun_light_ptr);
   
-  // Sky/Ambient Fill Light
-  // A secondary light placed far away on the opposite side so the deep 
-  // internal cavities of the labyrinth aren't completely pitch black.
-  PointLight* fill_light_ptr = new PointLight(0.6, white, Point3D(-5000, -2000, -5000));
-  add_light(fill_light_ptr);
+//   // Sky/Ambient Fill Light
+//   // A secondary light placed far away on the opposite side so the deep 
+//   // internal cavities of the labyrinth aren't completely pitch black.
+//   PointLight* fill_light_ptr = new PointLight(0.6, white, Point3D(-5000, -2000, -5000));
+//   add_light(fill_light_ptr);
   
-  // Build the Fractal (Size 100, Depth 3)
-  // Adds all geometry spheres to the world
-  buildMengerSponge(Point3D(0, 0, 50), 100.0, 4, this);
-  
-  // Build the BVH tree for efficient ray tracing
-  build_bvh();
+// Create a giant glowing square in the sky
+Point3D corner(0, 100, 0);       // Top center
+Vector3D edge1(40, 0, 0);        // 40 units wide on X
+Vector3D edge2(0, 0, 40);        // 40 units wide on Z
+
+RectangularLight* area_light = new RectangularLight(corner, edge1, edge2, white, 3.0);
+add_light(area_light);
+// Build the Fractal (Size 100, Depth 3)
+// Adds all geometry spheres to the world
+buildMengerSponge(Point3D(0, 0, 50), 50.0, 1, this);
+
+// Build the BVH tree for efficient ray tracing
+build_bvh();
 }
