@@ -33,9 +33,9 @@ void buildMengerSponge(const Point3D& center, float size, int depth, World* worl
     // Base case: place a sphere when we hit the bottom of the recursion tree
     if (depth == 0) {
         // Psychedelic coordinate-based coloring
-        float r = 0.5 + 0.2 * std::sin(center.x * 0.8);
-        float g = 0.5 + 0.2 * std::sin(center.y * 0.8);
-        float b = 0.5 + 0.2 * std::sin(center.z * 0.8);
+        float r = 0.5 + 0.0 * std::sin(center.x * 0.8);
+        float g = 0.5 + 0.0 * std::sin(center.y * 0.8);
+        float b = 0.5 + 0.0 * std::sin(center.z * 0.8);
         
         Sphere* sphere_ptr = new Sphere(center, size * 0.5); 
         sphere_ptr->set_material(new Diffuse(RGBColor(r, g, b)));
@@ -75,8 +75,8 @@ World::build(void) {
   vplane.bottom_right.x = 10;
   vplane.bottom_right.y = -10;
   vplane.bottom_right.z = 10;
-  vplane.hres = 1920;
-  vplane.vres = 1080;
+  vplane.hres = 480;
+  vplane.vres = 360;
 
   // Background color
   bg_color = bg; 
