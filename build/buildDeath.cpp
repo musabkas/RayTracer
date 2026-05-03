@@ -3,7 +3,8 @@
    Uses a BVH (Bounding Volume Hierarchy) for efficient ray tracing.
 */
 
-#include <cmath> // Required for std::sin
+#include <algorithm>
+#include <cmath>
 
 #include "../cameras/Perspective.hpp"
 
@@ -17,63 +18,77 @@
 #include "../materials/Cosine.hpp"
 #include "../materials/Diffuse.hpp"
 #include "../materials/Metal.hpp"
+#include "../materials/SpecularDiffuse.hpp"
 #include "../materials/Emissive.hpp"
+#include "../materials/Translucent.hpp"
 
 #include "../samplers/Jittered.hpp"
 
 #include "../utilities/Constants.hpp"
 
 #include "../world/World.hpp"
-// #include "../tracers/Shadow.hpp"
 #include "../tracers/PathTrace.hpp"
 #include "../lights/RectangularLight.hpp"
 #include "../utilities/ShadeInfo.hpp"
-#include <vector> // Just in case it's not included yet
+#include <vector>
 #include <cstdlib>
 #include <iostream>
 #include <ostream>
-// Recursive function to generate the Menger Sponge structure.
-// Adds sphere geometries directly to the world's geometry list.
 
 void addCenterOrb(World* world) {
-    // Just a soft central fill light, no geometry
-    PointLight* pl = new PointLight(1.0f, RGBColor(1.0f, 0.85f, 0.6f), Point3D(0, 0, 50));
+    PointLight* pl = new PointLight(1.0f, RGBColor(1.0f, 1.0f, 1.0f), Point3D(0, 20, 50));
     world->add_light(pl);
     return;
 }
 
 void addDiamondFrame(World* world) {
-    float s = 0.0f;
-    float tilt = 0.0f;
+    const float cz = 50.f;
+    const float s = 10.f;
+    const Point3D center(0.f, 0.f, cz);
 
-    auto rot = [&](Point3D p) -> Point3D {
-        float y = p.y * std::cos(tilt) - p.z * std::sin(tilt);
-        float z = p.y * std::sin(tilt) + p.z * std::cos(tilt);
-        return Point3D(p.x, y, z + 50);
+    Point3D top(0.f, s, cz);
+    Point3D bot(0.f, -s, cz);
+    Point3D front(0.f, 0.f, cz + s);
+    Point3D back(0.f, 0.f, cz - s);
+    Point3D left(-s, 0.f, cz);
+    Point3D right(s, 0.f, cz);
+
+    const float hull_scale = 0.90f;
+    auto hull_v = [&](Point3D v) -> Point3D {
+        return Point3D(
+            center.x + (v.x - center.x) * hull_scale,
+            center.y + (v.y - center.y) * hull_scale,
+            center.z + (v.z - center.z) * hull_scale
+        );
     };
 
-    Point3D top   = rot(Point3D( 0,  s,  0));
-    Point3D bot   = rot(Point3D( 0, -s,  0));
-    Point3D front = rot(Point3D( 0,  0,  s));
-    Point3D back  = rot(Point3D( 0,  0, -s));
-    Point3D left  = rot(Point3D(-s,  0,  0));
-    Point3D right = rot(Point3D( s,  0,  0));
+    Material* hull_mat = new Translucent(RGBColor(0.00f, 0.00f, 1.0f), 1.50f, 0.01f);
+    Material* rib_mat = new Diffuse(RGBColor(0.0f, 0.0f, 0.0f));
 
-    // Point lights at each vertex of the frame
-    float light_intensity = 0.5f;
-    RGBColor light_color(1.0f, 0.85f, 0.6f);
-    // world->add_light(new PointLight(light_intensity, light_color, top));
-    // world->add_light(new PointLight(light_intensity, light_color, bot));
-    // world->add_light(new PointLight(light_intensity, light_color, front));
-    // world->add_light(new PointLight(light_intensity, light_color, back));
-    // world->add_light(new PointLight(light_intensity, light_color, left));
-    // world->add_light(new PointLight(light_intensity, light_color, right));
+    auto addDiamondFace = [&](Point3D a, Point3D b, Point3D c) {
+        Triangle* t = new Triangle(a, b, c);
+        Triangle* tb = new Triangle(a, c, b);
+        t->set_material(hull_mat);
+        tb->set_material(hull_mat);
+        world->add_geometry(t);
+        world->add_geometry(tb);
+    };
 
-    // Material* frame_mat = new Metal(RGBColor(0.7f, 0.75f, 0.8f), 1.0f, 1.0f);
-    Material* frame_mat = new Diffuse(RGBColor(0.1f, 0.1f, 0.3f));
+    addDiamondFace(hull_v(top), hull_v(front), hull_v(right));
+    addDiamondFace(hull_v(top), hull_v(right), hull_v(back));
+    addDiamondFace(hull_v(top), hull_v(back), hull_v(left));
+    addDiamondFace(hull_v(top), hull_v(left), hull_v(front));
+    addDiamondFace(hull_v(bot), hull_v(front), hull_v(left));
+    addDiamondFace(hull_v(bot), hull_v(left), hull_v(back));
+    addDiamondFace(hull_v(bot), hull_v(back), hull_v(right));
+    addDiamondFace(hull_v(bot), hull_v(right), hull_v(front));
+
+    Material* frame_mat = rib_mat;
 
     auto addEdge = [&](Point3D a, Point3D b) {
         Vector3D along(b.x - a.x, b.y - a.y, b.z - a.z);
+        float len2 = along.x * along.x + along.y * along.y + along.z * along.z;
+        if (len2 < 1e-6f) return;
         along.normalize();
 
         Vector3D arbitrary(1.0f, 0.0f, 0.0f);
@@ -86,7 +101,8 @@ void addDiamondFrame(World* world) {
         );
         perp.normalize();
 
-        float thickness = 2.5f;
+        float thickness = 0.2f * s;
+        thickness = std::max(0.15f, std::min(thickness, s * 0.18f));
         Point3D a1(a.x + perp.x * thickness, a.y + perp.y * thickness, a.z + perp.z * thickness);
         Point3D a2(a.x - perp.x * thickness, a.y - perp.y * thickness, a.z - perp.z * thickness);
         Point3D b1(b.x + perp.x * thickness, b.y + perp.y * thickness, b.z + perp.z * thickness);
@@ -123,10 +139,7 @@ void buildMengerSponge(const Point3D& center, float size, int depth, World* worl
         float b = 0.5 + 0.5 * std::sin(center.z * 0.8);
 
         Sphere* sphere_ptr = new Sphere(center, size * 0.5);
-
-        sphere_ptr->set_material(new Diffuse(RGBColor(r, g, b)));
-        
-
+        sphere_ptr->set_material(new SpecularDiffuse(RGBColor(r, g, b), 0.4f, 2.0f, 4.f));
         world->add_geometry(sphere_ptr);
         return;
     }
@@ -138,7 +151,6 @@ void buildMengerSponge(const Point3D& center, float size, int depth, World* worl
                 int zeroCount = (x == 0) + (y == 0) + (z == 0);
                 if (zeroCount >= 2) continue;
 
-                // zeroCount == 1 means exactly one axis is 0 — this cell lines a tunnel
                 bool cell_on_tunnel = (zeroCount == 1);
 
                 Point3D newCenter(
@@ -153,109 +165,200 @@ void buildMengerSponge(const Point3D& center, float size, int depth, World* worl
     }
 }
 
-void addSpikes(World* world) {
-    Material* spike_mat = new Metal(RGBColor(0.85f, 0.92f, 1.0f), 1.0f, 1.0f);
+// // ── Mandala Shell ─────────────────────────────────────────────────────────────
 
-    Point3D orb(0, 0, 50);
-    float half = 50.0f; // sponge is 100 units wide, centered at orb
+// static bool mandalaKeep(float u, float v) {
+//     // Simple circular hole in the center of each face.
+//     // Tune this:
+//     const float holeRadius = 0.35f; // 0.0 = no hole, 0.5 = hole touches edges
 
-    // 8 corners of the bounding cube
-    float corners[8][3] = {
-        {-half, -half, orb.z - half},
-        { half, -half, orb.z - half},
-        {-half,  half, orb.z - half},
-        { half,  half, orb.z - half},
-        {-half, -half, orb.z + half},
-        { half, -half, orb.z + half},
-        {-half,  half, orb.z + half},
-        { half,  half, orb.z + half},
+//     float px = u - 0.5f;
+//     float py = v - 0.5f;
+//     float r  = std::sqrt(px * px + py * py);
+
+//     return r > holeRadius; // keep if outside the hole
+// }
+
+// static void addMandalaFace(World* world, Material* mat,
+//                             Point3D p00, Point3D p10,
+//                             Point3D p01, Point3D p11,
+//                             int gridN = 32) {
+//     auto lerp4 = [&](float u, float v) -> Point3D {
+//         float ou = 1.f - u, ov = 1.f - v;
+//         return Point3D(
+//             ou*ov*p00.x + u*ov*p10.x + ou*v*p01.x + u*v*p11.x,
+//             ou*ov*p00.y + u*ov*p10.y + ou*v*p01.y + u*v*p11.y,
+//             ou*ov*p00.z + u*ov*p10.z + ou*v*p01.z + u*v*p11.z
+//         );
+//     };
+
+//     for (int j = 0; j < gridN; ++j) {
+//         for (int i = 0; i < gridN; ++i) {
+//             float u0 = float(i)     / gridN;
+//             float u1 = float(i + 1) / gridN;
+//             float v0 = float(j)     / gridN;
+//             float v1 = float(j + 1) / gridN;
+//             float uc = (u0 + u1) * 0.5f;
+//             float vc = (v0 + v1) * 0.5f;
+
+//             if (!mandalaKeep(uc, vc)) continue;
+
+//             Point3D a = lerp4(u0, v0);
+//             Point3D b = lerp4(u1, v0);
+//             Point3D c = lerp4(u0, v1);
+//             Point3D d = lerp4(u1, v1);
+
+//             auto addTri = [&](Point3D x, Point3D y, Point3D z) {
+//                 Triangle* tf = new Triangle(x, y, z);
+//                 tf->set_material(mat);
+//                 world->add_geometry(tf);
+//             };
+
+//             addTri(a, b, d); // upper-right triangle
+//             addTri(a, d, c); // lower-left triangle
+//         }
+//     }
+// }
+
+// void buildMandalaShell(World* world, const Point3D& center, float size) {
+//     Material* mat = new Diffuse(RGBColor(1.00f, 0.30f, 0.3f));
+
+//     float step = size / 3.f;
+//     float h    = step * 0.5f;
+
+//     for (int x = -1; x <= 1; ++x) {
+//         for (int y = -1; y <= 1; ++y) {
+//             for (int z = -1; z <= 1; ++z) {
+//                 // Menger depth-1: skip face-centers (one zero) and center (all zero)
+//                 int zeros = (x==0) + (y==0) + (z==0);
+//                 if (zeros >= 2) continue;
+
+//                 Point3D c(
+//                     center.x + x * step,
+//                     center.y + y * step,
+//                     center.z + z * step
+//                 );
+
+//                 // 8 corners of this sub-cube
+//                 Point3D p000(c.x-h, c.y-h, c.z-h);
+//                 Point3D p100(c.x+h, c.y-h, c.z-h);
+//                 Point3D p010(c.x-h, c.y+h, c.z-h);
+//                 Point3D p110(c.x+h, c.y+h, c.z-h);
+//                 Point3D p001(c.x-h, c.y-h, c.z+h);
+//                 Point3D p101(c.x+h, c.y-h, c.z+h);
+//                 Point3D p011(c.x-h, c.y+h, c.z+h);
+//                 Point3D p111(c.x+h, c.y+h, c.z+h);
+
+//                 // All 6 faces get mandala treatment
+//                 // -Z face
+//                 addMandalaFace(world, mat, p000, p100, p010, p110);
+//                 // +Z face
+//                 addMandalaFace(world, mat, p001, p101, p011, p111);
+//                 // -X face
+//                 addMandalaFace(world, mat, p000, p001, p010, p011);
+//                 // +X face
+//                 addMandalaFace(world, mat, p100, p101, p110, p111);
+//                 // -Y face
+//                 addMandalaFace(world, mat, p000, p100, p001, p101);
+//                 // +Y face
+//                 addMandalaFace(world, mat, p010, p110, p011, p111);
+//             }
+//         }
+//     }
+// }
+
+// Returns true if the cell (x,y,z) in {-1,0,1}^3 is SOLID in the Menger sponge
+static bool mengerSolid(int x, int y, int z) {
+    // A cell is removed if 2+ coordinates are zero (face-center or body-center)
+    int zeros = (x == 0) + (y == 0) + (z == 0);
+    return zeros < 2;
+}
+
+// Emits a single quad (as 2 triangles) with CCW winding when viewed from 'outside'
+static void emitQuad(World* world, Material* mat,
+                     Point3D a, Point3D b, Point3D c, Point3D d) {
+    Triangle* t1 = new Triangle(a, b, c);
+    Triangle* t2 = new Triangle(a, c, d);
+    // Back-face so rays from inside also see it
+    Triangle* t1b = new Triangle(a, c, b);
+    Triangle* t2b = new Triangle(a, d, c);
+    t1->set_material(mat);  t2->set_material(mat);
+    t1b->set_material(mat); t2b->set_material(mat);
+    world->add_geometry(t1);  world->add_geometry(t2);
+    world->add_geometry(t1b); world->add_geometry(t2b);
+}
+
+// Builds the OUTER SHELL of a depth-1 Menger sponge:
+// Only emits faces where a solid sub-cube is adjacent to a removed (tunnel) cell.
+// The face gets the Sierpiński carpet subdivided treatment so holes are visible.
+void buildMengerShell(World* world, const Point3D& center, float size) {
+    Material* mat = new Diffuse(RGBColor(0.85f, 0.85f, 0.85f));
+
+    float step = size / 3.f;
+    float h    = step * 0.5f;
+
+    // Face directions and their axes
+    // For each of the 6 face directions, we check: is the neighbor in that direction empty?
+    // If yes, emit this face.
+
+    struct FaceDir { int dx, dy, dz; };
+    const FaceDir dirs[6] = {
+        { 1, 0, 0}, {-1, 0, 0},
+        { 0, 1, 0}, { 0,-1, 0},
+        { 0, 0, 1}, { 0, 0,-1}
     };
 
-    float pyramid_height = 90.0f; // how far the tip reaches inward — doesn't touch orb
-    float base_size = 8.0f;       // how wide the base is
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            for (int z = -1; z <= 1; z++) {
+                if (!mengerSolid(x, y, z)) continue; // skip removed cells
 
-    for (int i = 0; i < 8; i++) {
-        Point3D base_center(corners[i][0], corners[i][1], corners[i][2]);
+                Point3D c(
+                    center.x + x * step,
+                    center.y + y * step,
+                    center.z + z * step
+                );
 
-        // Direction from corner toward orb
-        Vector3D dir(
-            orb.x - base_center.x,
-            orb.y - base_center.y,
-            orb.z - base_center.z
-        );
-        dir.normalize();
+                // 8 corners
+                Point3D p000(c.x-h, c.y-h, c.z-h);
+                Point3D p100(c.x+h, c.y-h, c.z-h);
+                Point3D p010(c.x-h, c.y+h, c.z-h);
+                Point3D p110(c.x+h, c.y+h, c.z-h);
+                Point3D p001(c.x-h, c.y-h, c.z+h);
+                Point3D p101(c.x+h, c.y-h, c.z+h);
+                Point3D p011(c.x-h, c.y+h, c.z+h);
+                Point3D p111(c.x+h, c.y+h, c.z+h);
 
-        // Tip reaches inward but stops short of the orb
-        Point3D tip(
-            base_center.x + dir.x * pyramid_height,
-            base_center.y + dir.y * pyramid_height,
-            base_center.z + dir.z * pyramid_height
-        );
-
-        // Build a local coordinate frame at the base
-        Vector3D arbitrary(1.0f, 0.0f, 0.0f);
-        if (std::abs(dir.x) > 0.9f) arbitrary = Vector3D(0.0f, 1.0f, 0.0f);
-
-        Vector3D tangent(
-            dir.y * arbitrary.z - dir.z * arbitrary.y,
-            dir.z * arbitrary.x - dir.x * arbitrary.z,
-            dir.x * arbitrary.y - dir.y * arbitrary.x
-        );
-        tangent.normalize();
-
-        Vector3D bitangent(
-            dir.y * tangent.z - dir.z * tangent.y,
-            dir.z * tangent.x - dir.x * tangent.z,
-            dir.x * tangent.y - dir.y * tangent.x
-        );
-        bitangent.normalize();
-
-        // 4 base vertices of the pyramid
-        Point3D v0(
-            base_center.x + tangent.x * base_size + bitangent.x * base_size,
-            base_center.y + tangent.y * base_size + bitangent.y * base_size,
-            base_center.z + tangent.z * base_size + bitangent.z * base_size
-        );
-        Point3D v1(
-            base_center.x - tangent.x * base_size + bitangent.x * base_size,
-            base_center.y - tangent.y * base_size + bitangent.y * base_size,
-            base_center.z - tangent.z * base_size + bitangent.z * base_size
-        );
-        Point3D v2(
-            base_center.x - tangent.x * base_size - bitangent.x * base_size,
-            base_center.y - tangent.y * base_size - bitangent.y * base_size,
-            base_center.z - tangent.z * base_size - bitangent.z * base_size
-        );
-        Point3D v3(
-            base_center.x + tangent.x * base_size - bitangent.x * base_size,
-            base_center.y + tangent.y * base_size - bitangent.y * base_size,
-            base_center.z + tangent.z * base_size - bitangent.z * base_size
-        );
-
-        // 4 side faces of the pyramid, each double-sided
-        auto addFace = [&](Point3D a, Point3D b, Point3D c) {
-            Triangle* front = new Triangle(a, b, c);
-            Triangle* back  = new Triangle(a, c, b);
-            front->set_material(spike_mat);
-            back->set_material(spike_mat);
-            world->add_geometry(front);
-            world->add_geometry(back);
-        };
-
-        addFace(tip, v0, v1);
-        addFace(tip, v1, v2);
-        addFace(tip, v2, v3);
-        addFace(tip, v3, v0);
-
-        // Base face (square, split into 2 triangles), double-sided
-        addFace(v0, v1, v2);
-        addFace(v0, v2, v3);
+                // For each of 6 directions, check if the neighbor is empty (a hole)
+                // +X neighbor
+                if (!mengerSolid(x+1, y, z) || x == 1)
+                    emitQuad(world, mat, p101, p100, p110, p111); // +X face, outward CCW
+                // -X neighbor
+                if (!mengerSolid(x-1, y, z) || x == -1)
+                    emitQuad(world, mat, p000, p001, p011, p010); // -X face
+                // +Y neighbor
+                if (!mengerSolid(x, y+1, z) || y == 1)
+                    emitQuad(world, mat, p011, p111, p110, p010); // +Y face
+                // -Y neighbor
+                if (!mengerSolid(x, y-1, z) || y == -1)
+                    emitQuad(world, mat, p001, p000, p100, p101); // -Y face
+                // +Z neighbor
+                if (!mengerSolid(x, y, z+1) || z == 1)
+                    emitQuad(world, mat, p001, p101, p111, p011); // +Z face (front)
+                // -Z neighbor
+                if (!mengerSolid(x, y, z-1) || z == -1)
+                    emitQuad(world, mat, p100, p000, p010, p110); // -Z face (back)
+            }
+        }
     }
 }
 
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 void
 World::build(void) {
-  // View plane
   vplane.top_left.x = -10;
   vplane.top_left.y = 10;
   vplane.top_left.z = 10;
@@ -265,51 +368,35 @@ World::build(void) {
   vplane.hres = 480;
   vplane.vres = 360;
 
-  // Background color
-  bg_color = RGBColor(0.0, 0.0, 0.1); 
-  
-  // Camera and sampler.
+//   bg_color = RGBColor(0.5, 0.5, 0.5);
+    bg_color = black;
+
   set_camera(new Perspective(0, 0, 0));
-  
   sampler_ptr = new Jittered(camera_ptr, &vplane, 16);
   set_tracer(new PathTrace());
 
-//   // Faked Directional Light ("The Sun")
-//   // We place a PointLight extremely far away so its rays arrive essentially parallel.
-//   // The high Y and Z values give it a nice angled downward trajectory.
-//   PointLight* sun_light_ptr = new PointLight(2.0, white, Point3D(5000, 10000, 5000));
-//   add_light(sun_light_ptr);
-  
-//   // Sky/Ambient Fill Light
-//   // A secondary light placed far away on the opposite side so the deep 
-//   // internal cavities of the labyrinth aren't completely pitch black.
-//   PointLight* fill_light_ptr = new PointLight(0.6, white, Point3D(-5000, -2000, -5000));
-//   add_light(fill_light_ptr);
-  
-// Create a giant glowing square in the sky
-Point3D corner(0, 100, 0);       // Top center
-Vector3D edge1(40, 0, 0);        // 40 units wide on X
-Vector3D edge2(0, 0, 40);        // 40 units wide on Z
+  Point3D corner(0, 100, 0);
+  Vector3D edge1(40, 0, 0);
+  Vector3D edge2(0, 0, 40);
+  RectangularLight* area_light = new RectangularLight(corner, edge1, edge2, RGBColor(1.0, 1.0, 1.0), 0.5);
+  add_light(area_light);
 
-RectangularLight* area_light = new RectangularLight(corner, edge1, edge2, RGBColor(0.0, 0.0, 1.0), 0.5);
-add_light(area_light);
-// Build the Fractal (Size 100, Depth 3)
-// Adds all geometry spheres to the world
-buildMengerSponge(Point3D(0, 0, 50), 100.0, 4, this);
+  buildMengerSponge(Point3D(0, 0, 50), 100.0, 4, this);
 
-addCenterOrb(this);
-addDiamondFrame(this);
+//   buildMandalaShell(this, Point3D(0, 0, 50), 100.0f);
+    // buildMengerShell(this, Point3D(0, 0, 50), 100.0f);     // solid shell with holes over it
 
-addSpikes(this);
 
-// Build the BVH tree for efficient ray tracing
-int sphere_count = 0, triangle_count = 0;
-for (Geometry* g : geometry) {
-    if (dynamic_cast<Sphere*>(g)) sphere_count++;
-    else if (dynamic_cast<Triangle*>(g)) triangle_count++;
-}
-std::cout << "Primitives: " << geometry.size() << " total ("
-          << sphere_count << " spheres, "
-          << triangle_count << " triangles)" << std::endl;
-build_bvh();
+  addCenterOrb(this);
+  addDiamondFrame(this);
+
+  int sphere_count = 0, triangle_count = 0;
+  for (Geometry* g : geometry) {
+      if (dynamic_cast<Sphere*>(g)) sphere_count++;
+      else if (dynamic_cast<Triangle*>(g)) triangle_count++;
+  }
+  std::cout << "Primitives: " << geometry.size() << " total ("
+            << sphere_count << " spheres, "
+            << triangle_count << " triangles)" << std::endl;
+  build_bvh();
 }

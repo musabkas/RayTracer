@@ -40,7 +40,7 @@ RGBColor Diffuse::shade(const ShadeInfo &sinfo, const std::vector<Light *> &ligh
 }
 
 RGBColor Diffuse::path_shade(ShadeInfo& sr) {
-    if (sr.depth > 10)
+    if (sr.depth > 5)
         return RGBColor(0, 0, 0);
     RGBColor L_direct(0, 0, 0);
 

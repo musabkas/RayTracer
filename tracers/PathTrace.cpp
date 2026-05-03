@@ -4,7 +4,7 @@
 #include "../materials/Material.hpp"
 
 RGBColor PathTrace::trace_ray(const Ray& ray, const World& world, int depth) const {
-    if (depth > 10)
+    if (depth > 5)
         return RGBColor(0, 0, 0);
 
     ShadeInfo sr(world.hit_objects(ray));
