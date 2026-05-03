@@ -37,13 +37,14 @@
 
 void addCenterOrb(World* world) {
     // Just a soft central fill light, no geometry
-    PointLight* pl = new PointLight(2.0f, RGBColor(1.0f, 0.85f, 0.6f), Point3D(0, 0, 50));
+    PointLight* pl = new PointLight(1.0f, RGBColor(1.0f, 0.85f, 0.6f), Point3D(0, 0, 50));
     world->add_light(pl);
+    return;
 }
 
 void addDiamondFrame(World* world) {
-    float s = 20.0f;
-    float tilt = 0.3f;
+    float s = 0.0f;
+    float tilt = 0.0f;
 
     auto rot = [&](Point3D p) -> Point3D {
         float y = p.y * std::cos(tilt) - p.z * std::sin(tilt);
@@ -59,14 +60,14 @@ void addDiamondFrame(World* world) {
     Point3D right = rot(Point3D( s,  0,  0));
 
     // Point lights at each vertex of the frame
-    float light_intensity = 3.0f;
+    float light_intensity = 0.5f;
     RGBColor light_color(1.0f, 0.85f, 0.6f);
-    world->add_light(new PointLight(light_intensity, light_color, top));
-    world->add_light(new PointLight(light_intensity, light_color, bot));
-    world->add_light(new PointLight(light_intensity, light_color, front));
-    world->add_light(new PointLight(light_intensity, light_color, back));
-    world->add_light(new PointLight(light_intensity, light_color, left));
-    world->add_light(new PointLight(light_intensity, light_color, right));
+    // world->add_light(new PointLight(light_intensity, light_color, top));
+    // world->add_light(new PointLight(light_intensity, light_color, bot));
+    // world->add_light(new PointLight(light_intensity, light_color, front));
+    // world->add_light(new PointLight(light_intensity, light_color, back));
+    // world->add_light(new PointLight(light_intensity, light_color, left));
+    // world->add_light(new PointLight(light_intensity, light_color, right));
 
     // Material* frame_mat = new Metal(RGBColor(0.7f, 0.75f, 0.8f), 1.0f, 1.0f);
     Material* frame_mat = new Diffuse(RGBColor(0.1f, 0.1f, 0.3f));
@@ -270,7 +271,7 @@ World::build(void) {
   // Camera and sampler.
   set_camera(new Perspective(0, 0, 0));
   
-  sampler_ptr = new Jittered(camera_ptr, &vplane, 64);
+  sampler_ptr = new Jittered(camera_ptr, &vplane, 16);
   set_tracer(new PathTrace());
 
 //   // Faked Directional Light ("The Sun")
@@ -290,11 +291,11 @@ Point3D corner(0, 100, 0);       // Top center
 Vector3D edge1(40, 0, 0);        // 40 units wide on X
 Vector3D edge2(0, 0, 40);        // 40 units wide on Z
 
-RectangularLight* area_light = new RectangularLight(corner, edge1, edge2, RGBColor(0.0, 0.0, 1.0), 3.0);
+RectangularLight* area_light = new RectangularLight(corner, edge1, edge2, RGBColor(0.0, 0.0, 1.0), 0.5);
 add_light(area_light);
 // Build the Fractal (Size 100, Depth 3)
 // Adds all geometry spheres to the world
-buildMengerSponge(Point3D(0, 0, 50), 100.0, 2, this);
+buildMengerSponge(Point3D(0, 0, 50), 100.0, 4, this);
 
 addCenterOrb(this);
 addDiamondFrame(this);
