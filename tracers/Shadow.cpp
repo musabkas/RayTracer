@@ -21,14 +21,11 @@ RGBColor Shadow::trace_ray(const Ray &ray, const World &world) const {
         Point3D shadow_origin = sinfo.hit_point + sinfo.normal * kEpsilon;
         Ray shadow_ray(shadow_origin, light_dir);
         
-        ShadeInfo shadow_info = world.hit_objects(shadow_ray);
+        
 
         double distance_to_light = light->get_distance(sinfo.hit_point); 
         
-        bool is_in_shadow = (shadow_info.hit && 
-                             shadow_info.t > kEpsilon && 
-                             shadow_info.t < distance_to_light);
-        
+        bool is_in_shadow = world.is_shadowed(shadow_ray, distance_to_light);
         if (!is_in_shadow) {
           std::vector<Light*> single_light = {light};
           RGBColor material_color = sinfo.material_ptr->shade(sinfo, single_light);

@@ -23,5 +23,5 @@ Lambertian &Lambertian::operator=(const Lambertian &other){
 }
 
 RGBColor Lambertian::f(const Vector3D& wi, const Vector3D& wo, const Vector3D& n) const {
-    return rho; // Not dividing by PI
+    return rho / 3.14159265359f; // Lambertian BRDF: rho/pi
 }

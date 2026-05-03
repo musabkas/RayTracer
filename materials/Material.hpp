@@ -8,6 +8,8 @@
  Courtesy Kevin Suffern.
  */
 
+ #include "../utilities/RGBColor.hpp"
+#include "../utilities/Constants.hpp"
 #include <vector>
 
 class RGBColor;
@@ -28,4 +30,8 @@ public:
 
   // Get color.
   virtual RGBColor shade(const ShadeInfo &sinfo, const std::vector<Light *> &lights) const = 0;
+  // Add this virtual function so the PathTracer can call it
+  virtual RGBColor path_shade(ShadeInfo& sr) {
+      return black; // Default returns black if not overridden
+  }
 };

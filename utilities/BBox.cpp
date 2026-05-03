@@ -23,8 +23,8 @@ bool BBox::hit(const Ray &ray, float &t_enter, float &t_exit) const {
             tx1 = 0;
         }
     } else {
-        tx0 = (pmin.x - ray.o.x) / ray.d.x;
-        tx1 = (pmax.x - ray.o.x) / ray.d.x;
+        tx0 = (pmin.x - ray.o.x) * ray.inv_d.x;
+        tx1 = (pmax.x - ray.o.x) * ray.inv_d.x;
         if (tx0 > tx1) {
             float tmp = tx1;
             tx1 = tx0;
@@ -42,8 +42,8 @@ bool BBox::hit(const Ray &ray, float &t_enter, float &t_exit) const {
             ty1 = 0;
         }
     } else {
-        ty0 = (pmin.y - ray.o.y) / ray.d.y;
-        ty1 = (pmax.y - ray.o.y) / ray.d.y;
+        ty0 = (pmin.y - ray.o.y) * ray.inv_d.y;
+        ty1 = (pmax.y - ray.o.y) * ray.inv_d.y;
         if (ty0 > ty1) {
             float tmp = ty1;
             ty1 = ty0;
@@ -61,8 +61,8 @@ bool BBox::hit(const Ray &ray, float &t_enter, float &t_exit) const {
             tz1 = 0;
         }
     } else {
-        tz0 = (pmin.z - ray.o.z) / ray.d.z;
-        tz1 = (pmax.z - ray.o.z) / ray.d.z;
+        tz0 = (pmin.z - ray.o.z) * ray.inv_d.z;
+        tz1 = (pmax.z - ray.o.z) * ray.inv_d.z;
         if (tz0 > tz1) {
             float tmp = tz1;
             tz1 = tz0;
@@ -72,12 +72,12 @@ bool BBox::hit(const Ray &ray, float &t_enter, float &t_exit) const {
 
     t_enter = std::max(tx0, std::max(ty0, tz0));
     t_exit = std::min(tx1, std::min(ty1, tz1));
-    return t_enter >= t_exit;
+    return t_enter < t_exit;
 }
 
 void BBox::extend(const BBox& b){
     pmin = min(pmin, b.pmin);
-    pmax = min(pmax, b.pmax);
+    pmax = max(pmax, b.pmax);
 }
 
 void BBox::extend(Geometry* g){

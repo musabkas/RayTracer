@@ -21,6 +21,8 @@ public:
 
   // Desctructor.
   virtual ~Glossy() = default;
+  
+  RGBColor get_color() const { return rho; }
 
   /* Returned shade is: rho / pi */
   virtual RGBColor f(const Vector3D& wi, const Vector3D& wo, const Vector3D& n) const override;
