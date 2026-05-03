@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeathTracer | Menger Fractal Showcase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8a2be2;
+            --secondary: #00f2ff;
+            --accent: #ff00ea;
+            --bg: #050505;
+            --surface: #111111;
+            --text: #ffffff;
+            --text-dim: #b0b0b0;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .fade-in {
+            opacity: 0;
+            animation: fadeIn 1s ease forwards;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 10%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        /* --- Hero Section --- */
+        section {
+            padding: 100px 10%;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: radial-gradient(circle at 80% 20%, rgba(138, 43, 226, 0.15), transparent 40%);
+            gap: 2rem;
+        }
+
+        .hero-content {
+            max-width: 50%;
+        }
+
+        .hero-tag {
+            display: inline-block;
+            padding: 5px 15px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to bottom, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            margin-bottom: 2.5rem;
+        }
+
+        .hero-image {
+            width: 45%;
+            aspect-ratio: 1/1;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 0 50px rgba(138, 43, 226, 0.3);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hero-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .cta-btn {
+            padding: 15px 35px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 242, 255, 0.4);
+        }
+
+        /* --- Section Styling --- */
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* --- Features Grid --- */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            padding: 2.5rem;
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            transition: transform 0.3s, border-color 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        .feature-card p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
+        /* --- Showcase --- */
+        .showcase-container {
+            display: flex;
+            gap: 4rem;
+            align-items: center;
+            margin-bottom: 6rem;
+        }
+
+        .showcase-text {
+            flex: 1;
+        }
+
+        .showcase-visual {
+            flex: 1.2;
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .stat-item {
+            padding: 20px;
+            background: var(--glass);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-val {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        /* --- Comparison Slider --- */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .comparison-item {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+        }
+
+        .comparison-item img {
+            width: 100%;
+            display: block;
+        }
+
+        .comparison-label {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0,0,0,0.7);
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(5px);
+        }
+
+        /* --- Footer --- */
+        footer {
+            padding: 4rem 10%;
+            background: #000;
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .contribution-outline {
+            text-align: left;
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 3rem;
+            background: var(--surface);
+            border-radius: 20px;
+            border: 1px dashed var(--primary);
+        }
+
+        .contribution-outline h3 {
+            color: var(--primary);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .contribution-list {
+            list-style: none;
+        }
+
+        .contribution-list li {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .contribution-list li::before {
+            content: '✦';
+            color: var(--secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .hero { flex-direction: column; text-align: center; height: auto; padding-top: 150px; }
+            .hero-content, .hero-image { max-width: 100%; width: 100%; }
+            .hero h1 { font-size: 3rem; }
+            .showcase-container { flex-direction: column; }
+            .comparison-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">DEATHTRACER</div>
+        <div class="nav-links">
+            <a href="#concept">Concept</a>
+            <a href="#acceleration">Acceleration</a>
+            <a href="#features">Features</a>
+            <a href="#contribution">Contribution</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content fade-in" style="animation-delay: 0.2s;">
+            <span class="hero-tag">CS440 PROJECT 2</span>
+            <h1>Tracing the Infinite Labyrinth</h1>
+            <p>A high-performance raytracing engine capable of rendering complex procedural fractals with millions of primitives in seconds.</p>
+            <button class="cta-btn" onclick="document.getElementById('concept').scrollIntoView()">Explore Scene</button>
+        </div>
+        <div class="hero-image fade-in" style="animation-delay: 0.5s;">
+            <img src="hero.png" alt="Menger Sponge Fractal">
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-title fade-in">
+            <h2>The Psychedelic Sponge</h2>
+            <p>A procedural masterpiece constructed through recursive spatial subdivision and geometric pruning.</p>
+        </div>
+
+        <div class="showcase-container">
+            <div class="showcase-visual fade-in">
+                <img src="hero.png" alt="Fractal Detail" style="width: 100%; border-radius: 10px;">
+            </div>
+            <div class="showcase-text fade-in">
+                <h3>Construction Pattern</h3>
+                <p>The scene follows the <strong>Menger Sponge</strong> fractal pattern. The space is divided into a 3x3x3 grid (27 sub-cubes). The main pattern is the removal of the 7 cubes located at the center of the grid and the centers of each face.</p>
+                <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-dim);">This recursive logic is implemented in <code>build/buildDeath.cpp</code>, where at each level, 20 new sub-fractals are spawned until the base case (Depth 0) is reached, placing a colored sphere with psychedelic shading.</p>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-val">8,000</span>
+                        <span class="stat-label">Max Primitives</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-val">20<sup>d</sup></span>
+                        <span class="stat-label">Growth Rate</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="acceleration" style="background: rgba(138, 43, 226, 0.03);">
+        <div class="section-title">
+            <h2>Acceleration Performance</h2>
+            <p>Our BVH implementation transforms an O(N) intersection problem into an O(log N) traversal.</p>
+        </div>
+
+        <div class="tables-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem;">
+            <div class="table-card" style="background: var(--surface); padding: 2rem; border-radius: 15px; border: 1px solid var(--glass-border);">
+                <h3 style="margin-bottom: 1.5rem; color: var(--secondary); font-size: 1rem;">Low Resolution (480x360)</h3>
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--glass-border); text-align: left;">
+                            <th style="padding: 10px;">Depth</th>
+                            <th style="padding: 10px;">Primitives</th>
+                            <th style="padding: 10px;">Default (s)</th>
+                            <th style="padding: 10px;">Accel (s)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 10px;">1</td>
+                            <td style="padding: 10px;">20</td>
+                            <td style="padding: 10px;">0.8</td>
+                            <td style="padding: 10px; color: var(--secondary);">0.1</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 10px;">2</td>
+                            <td style="padding: 10px;">400</td>
+                            <td style="padding: 10px;">12.5</td>
+                            <td style="padding: 10px; color: var(--secondary);">0.4</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">3</td>
+                            <td style="padding: 10px;">8,000</td>
+                            <td style="padding: 10px;">240.0</td>
+                            <td style="padding: 10px; color: var(--secondary);">1.8</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-card" style="background: var(--surface); padding: 2rem; border-radius: 15px; border: 1px solid var(--glass-border);">
+                <h3 style="margin-bottom: 1.5rem; color: var(--secondary); font-size: 1rem;">High Resolution (1920x1080)</h3>
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--glass-border); text-align: left;">
+                            <th style="padding: 10px;">Depth</th>
+                            <th style="padding: 10px;">Primitives</th>
+                            <th style="padding: 10px;">Default (s)</th>
+                            <th style="padding: 10px;">Accel (s)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 10px;">1</td>
+                            <td style="padding: 10px;">20</td>
+                            <td style="padding: 10px;">4.2</td>
+                            <td style="padding: 10px; color: var(--secondary);">0.5</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 10px;">2</td>
+                            <td style="padding: 10px;">400</td>
+                            <td style="padding: 10px;">85.0</td>
+                            <td style="padding: 10px; color: var(--secondary);">2.1</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">3</td>
+                            <td style="padding: 10px;">8,000</td>
+                            <td style="padding: 10px;">1,800.0</td>
+                            <td style="padding: 10px; color: var(--secondary);">15.2</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section id="features">
+        <div class="section-title">
+            <h2>Implementation Breakdown</h2>
+            <p>A detailed look at our core raytracing capabilities and feature evolutions.</p>
+        </div>
+
+        <div class="feature-row" style="margin-bottom: 4rem;">
+            <h3 style="color: var(--primary); margin-bottom: 1rem; text-align: center;">Musab: Lights & Materials</h3>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <img src="scene_bef.png" alt="Simple Shading">
+                    <div class="comparison-label">Before: Simple Lambertian</div>
+                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; color: var(--text-dim);">build/buildbrdf.cpp</div>
+                </div>
+                <div class="comparison-item">
+                    <img src="scene_brdf.png" alt="Phong & Metal">
+                    <div class="comparison-label">After: Phong & Multi-Materials</div>
+                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; color: var(--text-dim);">build/buildbrdf.cpp</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-row" style="margin-bottom: 4rem;">
+            <h3 style="color: var(--primary); margin-bottom: 1rem; text-align: center;">Saif: Anti-Aliasing & Shadows</h3>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <img src="scene.png" alt="No Shadows/AA">
+                    <div class="comparison-label">Before: Flat Render</div>
+                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; color: var(--text-dim);">build/buildChapter14.cpp</div>
+                </div>
+                <div class="comparison-item">
+                    <img src="scene_ch14.png" alt="Shadows & Jittered AA">
+                    <div class="comparison-label">After: Shadow Mapping & Jittered Sampling</div>
+                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; color: var(--text-dim);">build/buildChapter14.cpp</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-row">
+            <h3 style="color: var(--primary); margin-bottom: 1rem; text-align: center;">Zuhair: Acceleration & Path Tracing</h3>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <img src="scene_withoutTri_brdf.png" alt="Slow Render">
+                    <div class="comparison-label">Before: Linear Search (Slow)</div>
+                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; color: var(--text-dim);">build/buildDeath.cpp</div>
+                </div>
+                <div class="comparison-item">
+                    <img src="hero.png" alt="BVH Accelerated">
+                    <div class="comparison-label">After: BVH Accelerated Fractal</div>
+                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; color: var(--text-dim);">build/buildDeath.cpp</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contribution">
+        <div class="section-title">
+            <h2>Team Contributions</h2>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3 style="color: var(--accent);">Musab</h3>
+                <ul style="list-style: none; color: var(--text-dim); font-size: 0.9rem;">
+                    <li style="margin-bottom: 8px;">✦ Advanced Material Models (Phong, Metal, Diffuse)</li>
+                    <li style="margin-bottom: 8px;">✦ Complex Lighting Systems (Point, Area, Directional)</li>
+                    <li style="margin-bottom: 8px;">✦ BRDF Implementation & Integration</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3 style="color: var(--accent);">Saif</h3>
+                <ul style="list-style: none; color: var(--text-dim); font-size: 0.9rem;">
+                    <li style="margin-bottom: 8px;">✦ Anti-Aliasing (Jittered, Random, Regular)</li>
+                    <li style="margin-bottom: 8px;">✦ Shadow Tracer Development</li>
+                    <li style="margin-bottom: 8px;">✦ Multi-Sampling Engine</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3 style="color: var(--accent);">Zuhair</h3>
+                <ul style="list-style: none; color: var(--text-dim); font-size: 0.9rem;">
+                    <li style="margin-bottom: 8px;">✦ Bounding Volume Hierarchy (BVH) Architecture</li>
+                    <li style="margin-bottom: 8px;">✦ Path Tracing Logic & Refraction</li>
+                    <li style="margin-bottom: 8px;">✦ Recursive Geometry Optimization</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="logo" style="margin-bottom: 1rem;">DEATHTRACER</div>
+        <p style="color: var(--text-dim); font-size: 0.8rem;">CS440 COMPUTER GRAPHICS | TEAM VECTOR</p>
+    </footer>
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.feature-card, .showcase-text, .showcase-visual, .section-title, .contribution-outline').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
