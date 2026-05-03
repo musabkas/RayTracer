@@ -1,10 +1,7 @@
 #pragma once
 
-/**
-   This file declares the Geometry class which is an abstract class from which
-   other concrete geometric objects will inherit.
-
-   Courtesy Kevin Suffern.
+/*
+   high level geometry work
 */
 
 #include <string>
@@ -16,10 +13,10 @@ class ShadeInfo;
 
 class Geometry {
 protected:
-  Material *material_ptr; // this object's material.
+  Material *material_ptr; // this object's material which has to be accessed by its children
 
 public:
-  // Constructors.
+  // oop magic
   Geometry(); // sets material_ptr to NULL.
 
   // Copy constructor and assignment operator.
@@ -29,16 +26,16 @@ public:
   // Destructor.
   virtual ~Geometry() = default;
   
-  // String representation.
+  // do we need this? oh well
   virtual std::string to_string() const = 0;
 
-  // Get/set material.
+  // get set etcetera
   Material *get_material() const;
   void set_material(Material *mPtr);
 
-  // Ray intersection. Set t and sinfo as per intersection with this object.
+  // look for a hit
   virtual bool hit(const Ray &ray, float &t, ShadeInfo &sinfo) const = 0;
 
-  // Get bounding box.
+  // bounding box; that's the problem for the children just like everything else in life
   virtual BBox getBBox() const = 0;
 };

@@ -1,10 +1,7 @@
 #pragma once
 
 /**
-   This file declares the Plane class which represents a plane defined by an
-   included point and its normal.
-
-   Courtesy Kevin Suffern.
+   creates a plane
 */
 
 #include "Geometry.hpp"
