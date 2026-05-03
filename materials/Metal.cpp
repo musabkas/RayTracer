@@ -40,7 +40,7 @@ RGBColor Metal::shade(const ShadeInfo &sinfo, const std::vector<Light *> &lights
 }
 
 RGBColor Metal::path_shade(ShadeInfo& sr) {
-    if (sr.depth > 5)
+    if (sr.depth > 10)
         return RGBColor(0, 0, 0);
 
     Vector3D wo = -sr.ray.d;
