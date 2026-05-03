@@ -1,5 +1,5 @@
 #include "BVHTree.hpp"
-#include "Geometry.hpp"
+#include "../geometry/Geometry.hpp"
 #include <algorithm>
 #include <climits>
 

@@ -1,7 +1,7 @@
 #include "World.hpp"
 #include "../utilities/ShadeInfo.hpp"
 #include "../geometry/Geometry.hpp"
-#include "../geometry/BVHTree.hpp"
+#include "../acceleration/BVHTree.hpp"
 #include "../tracers/Tracer.hpp"
 
 World::World(){

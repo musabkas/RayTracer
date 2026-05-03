@@ -8,7 +8,7 @@
 
 #include <vector>
 #include "BVHNode.hpp"
-#include "Geometry.hpp"
+#include "../geometry/Geometry.hpp"
 #include "../utilities/Ray.hpp"
 #include "../utilities/ShadeInfo.hpp"
 #include "../utilities/BBox.hpp"

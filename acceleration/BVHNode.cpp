@@ -1,5 +1,5 @@
 #include "BVHNode.hpp"
-#include "Geometry.hpp"
+#include "../geometry/Geometry.hpp"
 #include "../utilities/Ray.hpp"
 
 BVHNode::BVHNode() : left(nullptr), right(nullptr), lower(0), upper(-1) {}
