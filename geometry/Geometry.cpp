@@ -1,5 +1,6 @@
 #include "Geometry.hpp"
 
+// frankly not much to do here given how this class is
 Geometry::Geometry() {
     material_ptr = nullptr;
 }

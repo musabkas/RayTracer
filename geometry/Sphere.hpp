@@ -1,10 +1,7 @@
 #pragma once
 
 /**
-   This file declares the Sphere class which represents a sphere defined by its
-   center and radius.
-
-   Courtesy Kevin Suffern.
+   insert bonnie meme here about spheres
 */
 
 #include "Geometry.hpp"
