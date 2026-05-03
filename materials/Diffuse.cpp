@@ -40,6 +40,8 @@ RGBColor Diffuse::shade(const ShadeInfo &sinfo, const std::vector<Light *> &ligh
 }
 
 RGBColor Diffuse::path_shade(ShadeInfo& sr) {
+    if (sr.depth > 5)
+        return RGBColor(0, 0, 0);
     RGBColor L_direct(0, 0, 0);
 
     // ==========================================
@@ -102,11 +104,9 @@ RGBColor Diffuse::path_shade(ShadeInfo& sr) {
 
     // The Recursive Bounce
     Ray bounce_ray(sr.hit_point + sr.normal * 0.001f, wi); 
-    RGBColor L_indirect = sr.w->tracer_ptr->trace_ray(bounce_ray, *(sr.w));
+    // only change is the bounce ray call at the bottom:
+    RGBColor L_indirect = sr.w->tracer_ptr->trace_ray(bounce_ray, *(sr.w), sr.depth + 1);
 
-    // Extract the (cd * kd) base color
-    RGBColor f = lambertian_brdf.f(wi, sr.ray.d, sr.normal); 
-    
-    // Combine Direct + (Indirect / survival_prob)
+    RGBColor f = lambertian_brdf.f(wi, sr.ray.d, sr.normal);
     return L_direct + ((L_indirect * f) / survival_prob);
 }

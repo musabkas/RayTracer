@@ -19,4 +19,5 @@ public:
 
   // Pure virtual function for tracing rays
   virtual RGBColor trace_ray(const Ray &ray, const World &world) const = 0;
+  virtual RGBColor trace_ray(const Ray& ray, const World& world, int depth) const = 0;
 };

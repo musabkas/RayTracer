@@ -6,6 +6,6 @@ public:
     PathTrace() = default;
     virtual ~PathTrace() = default;
     
-    // Perfectly matched to your Tracer.hpp signature
-    virtual RGBColor trace_ray(const Ray& ray, const World& world) const override; 
+    virtual RGBColor trace_ray(const Ray& ray, const World& world) const;
+    virtual RGBColor trace_ray(const Ray& ray, const World& world, int depth) const;
 };
