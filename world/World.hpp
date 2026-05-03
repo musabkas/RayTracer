@@ -59,4 +59,5 @@ public:
   // Returns appropriate shading information corresponding to intersection of
   // the ray with the scene geometry.
   ShadeInfo hit_objects(const Ray &ray) const;
+    bool is_shadowed(const Ray &ray, float max_t) const;
 };

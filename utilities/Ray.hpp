@@ -14,7 +14,8 @@ public:
   Point3D o;  // origin
   Vector3D d; // direction, keep normalized.
   float w;    // weightage of ray for a particular pixel, default is 1.
-
+  Vector3D inv_d; // inverse direction for fast BBox intersection
+  
 public:
   // Constructors.
   Ray(); // set origin and dir to (0, 0, 0), w to 1.

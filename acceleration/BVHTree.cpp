@@ -6,6 +6,12 @@
 BVHTree::BVHTree(const std::vector<Geometry *> &geometries, const World &world) : root(nullptr) {
   primitives = geometries;
   
+  // Initialize indices array
+  indices.resize(primitives.size());
+  for (size_t i = 0; i < primitives.size(); ++i) {
+    indices[i] = i;
+  }
+  
   if (!primitives.empty()) {
     root = buildNode(0, primitives.size() - 1);
   }
@@ -22,9 +28,9 @@ BBox BVHTree::computeBBox(int lower, int upper) const {
     return BBox();
   }
   
-  BBox bbox = primitives[lower]->getBBox();
+  BBox bbox = primitives[indices[lower]]->getBBox();
   for (int i = lower + 1; i <= upper; ++i) {
-    bbox.extend(primitives[i]);
+    bbox.extend(primitives[indices[i]]);
   }
   return bbox;
 }
@@ -43,11 +49,11 @@ int BVHTree::findSplitAxis(int lower, int upper) const {
 int BVHTree::findSplitPosition(int lower, int upper, int axis) {
   int mid = (lower + upper) / 2;
   
-  // Sort primitives by centroid along the split axis
-  std::sort(primitives.begin() + lower, primitives.begin() + upper + 1,
-    [axis](const Geometry *a, const Geometry *b) {
-      BBox abox = a->getBBox();
-      BBox bbox = b->getBBox();
+  // Sort indices by centroid along the split axis (don't modify primitives array)
+  std::sort(indices.begin() + lower, indices.begin() + upper + 1,
+    [this, axis](int a, int b) {
+      BBox abox = primitives[a]->getBBox();
+      BBox bbox = primitives[b]->getBBox();
       float acentroid = (abox.pmin.x + abox.pmax.x) / 2.0f;
       float bcentroid = (bbox.pmin.x + bbox.pmax.x) / 2.0f;
       
@@ -93,17 +99,19 @@ BVHNode *BVHTree::buildNode(int lower, int upper) {
   return node;
 }
 
-ShadeInfo BVHTree::hit(const Ray &ray, const World &world) const {
-  ShadeInfo shade_info(world);
-  shade_info.hit = false;
-  shade_info.t = 1e5f;
-  
+void BVHTree::hit(const Ray &ray, ShadeInfo &sinfo, const World &world) const {
   if (root) {
-    shade_info = root->hit(ray, primitives, world);
+    root->hit(ray, sinfo, primitives, indices, world);
   }
-  
-  return shade_info;
 }
+
+bool BVHTree::is_shadowed(const Ray &ray, float max_t, const World &world) const {
+    if (root) {
+        return root->is_shadowed(ray, max_t, primitives, indices, world);
+    }
+    return false;
+}
+
 
 BVHNode *BVHTree::getRoot() const {
   return root;

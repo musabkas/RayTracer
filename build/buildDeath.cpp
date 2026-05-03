@@ -108,7 +108,7 @@ RectangularLight* area_light = new RectangularLight(corner, edge1, edge2, white,
 add_light(area_light);
 // Build the Fractal (Size 100, Depth 3)
 // Adds all geometry spheres to the world
-buildMengerSponge(Point3D(0, 0, 50), 100.0, 3, this);
+buildMengerSponge(Point3D(0, 0, 50), 100.0, 1, this);
 
 // Build the BVH tree for efficient ray tracing
 build_bvh();

@@ -6,24 +6,29 @@ Triangle::Triangle() {
     v0 = Point3D();
     v1 = Point3D();
     v2 = Point3D();
+    normal = Vector3D();
 }
 
 Triangle::Triangle(const Point3D &pt0, const Point3D &pt1, const Point3D &pt2) {
     v0 = pt0;
     v1 = pt1;
     v2 = pt2;
+    normal = (v1 - v0) ^ (v2 - v0);
+    normal.normalize();
 }
 
 Triangle::Triangle(const Triangle &object) {
     v0 = object.v0;
     v1 = object.v1;
     v2 = object.v2;
+    normal = object.normal;
 }
 
 Triangle &Triangle::operator=(const Triangle &rhs) {
     v0 = rhs.v0;
     v1 = rhs.v1;
     v2 = rhs.v2;
+    normal = rhs.normal;
     return *this;
 }
 
@@ -58,8 +63,7 @@ bool Triangle::hit(const Ray &ray, float &t, ShadeInfo &s) const {
         s.hit = true;
         s.material_ptr = material_ptr;
         s.hit_point = ray.o + ray.d * t;
-        s.normal = (v1 - v0) ^ (v2 - v0);
-        s.normal.normalize();
+        s.normal = normal;
         s.ray = ray;
         s.depth = 0;
         s.t = t;
