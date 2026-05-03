@@ -53,8 +53,8 @@ public:
 
   // Ray intersection
   bool hit(const Ray &ray, ShadeInfo &sinfo, const std::vector<Geometry *> &primitives,
-           const World &world) const;
+           const std::vector<int> &indices, const World &world) const;
   // Any hit
   bool is_shadowed(const Ray &ray, float max_t, const std::vector<Geometry *> &primitives,
-                   const World &world) const;
+                   const std::vector<int> &indices, const World &world) const;
 };

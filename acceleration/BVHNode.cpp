@@ -23,7 +23,7 @@ int BVHNode::getLower() const { return lower; }
 int BVHNode::getUpper() const { return upper; }
 
 bool BVHNode::hit(const Ray &ray, ShadeInfo &sinfo, const std::vector<Geometry *> &primitives,
-                       const World &world) const {
+                       const std::vector<int> &indices, const World &world) const {
   float t_enter, t_exit;
   if (!bbox.hit(ray, t_enter, t_exit)) {
     return false;
@@ -36,15 +36,17 @@ bool BVHNode::hit(const Ray &ray, ShadeInfo &sinfo, const std::vector<Geometry *
 
   bool hit_anything = false;
 
-  if (isLeaf()) {
-    for (int i = lower; i <= upper; ++i) {
-      if (primitives[i]->hit(ray, sinfo.t, sinfo)) {
-          hit_anything = true;
-          // Don't break - need to test all primitives in the leaf to find the closest
-      }
+  // Inside BVHNode::hit ...
+if (isLeaf()) {
+  for (int i = lower; i <= upper; ++i) {
+    // Add 'indices' indirection here!
+    if (primitives[indices[i]]->hit(ray, sinfo.t, sinfo)) {
+        hit_anything = true;
     }
-    return hit_anything;
   }
+  return hit_anything;
+}
+
 
   // Front-to-back optimization
   float t_left_enter = 1e6, t_left_exit;
@@ -69,18 +71,15 @@ bool BVHNode::hit(const Ray &ray, ShadeInfo &sinfo, const std::vector<Geometry *
       first = right;
   }
 
-  if (first) {
-      if (first->hit(ray, sinfo, primitives, world)) hit_anything = true;
-  }
-  if (second) {
-      if (second->hit(ray, sinfo, primitives, world)) hit_anything = true;
-  }
+  
+if (first) { if (first->hit(ray, sinfo, primitives, indices, world)) hit_anything = true; }
+if (second) { if (second->hit(ray, sinfo, primitives, indices, world)) hit_anything = true; }
 
   return hit_anything;
 }
 
 bool BVHNode::is_shadowed(const Ray &ray, float max_t, const std::vector<Geometry *> &primitives,
-                           const World &world) const {
+                          const std::vector<int> &indices, const World &world) const {
   float t_enter, t_exit;
   if (!bbox.hit(ray, t_enter, t_exit) || t_enter >= max_t) {
     return false;
@@ -91,15 +90,18 @@ bool BVHNode::is_shadowed(const Ray &ray, float max_t, const std::vector<Geometr
       float t = max_t;
       // create dummy shadeinfo as geometry hit requires it
       ShadeInfo dummy_sinfo(world);
-      if (primitives[i]->hit(ray, t, dummy_sinfo) && dummy_sinfo.t > 0.0001f && dummy_sinfo.t < max_t) {
+      
+      // FIX: Use the indices array to look up the correct, sorted primitive
+      if (primitives[indices[i]]->hit(ray, t, dummy_sinfo) && dummy_sinfo.t > 0.0001f && dummy_sinfo.t < max_t) {
           return true; // Any hit!
       }
     }
     return false;
   }
 
-  if (left && left->is_shadowed(ray, max_t, primitives, world)) return true;
-  if (right && right->is_shadowed(ray, max_t, primitives, world)) return true;
+  // FIX: Pass the indices array down recursively
+  if (left && left->is_shadowed(ray, max_t, primitives, indices, world)) return true;
+  if (right && right->is_shadowed(ray, max_t, primitives, indices, world)) return true;
 
   return false;
 }

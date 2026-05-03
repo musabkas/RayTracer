@@ -73,8 +73,7 @@ bool Triangle::hit(const Ray &ray, float &t, ShadeInfo &s) const {
 }
 
 
-BBox Triangle::getBBox() const { // unimplemented optimization
-    // Find min and max coordinates across all three vertices
+BBox Triangle::getBBox() const {
     float min_x = std::min(std::min(v0.x, v1.x), v2.x);
     float min_y = std::min(std::min(v0.y, v1.y), v2.y);
     float min_z = std::min(std::min(v0.z, v1.z), v2.z);
@@ -82,6 +81,12 @@ BBox Triangle::getBBox() const { // unimplemented optimization
     float max_x = std::max(std::max(v0.x, v1.x), v2.x);
     float max_y = std::max(std::max(v0.y, v1.y), v2.y);
     float max_z = std::max(std::max(v0.z, v1.z), v2.z);
+    
+    // Add padding to prevent zero-thickness bounding boxes
+    float epsilon = 0.0001f;
+    if (max_x - min_x < epsilon) { min_x -= epsilon; max_x += epsilon; }
+    if (max_y - min_y < epsilon) { min_y -= epsilon; max_y += epsilon; }
+    if (max_z - min_z < epsilon) { min_z -= epsilon; max_z += epsilon; }
     
     return BBox(Point3D(min_x, min_y, min_z), Point3D(max_x, max_y, max_z));
 }
