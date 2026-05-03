@@ -43,12 +43,12 @@ bool Sphere::hit(const Ray &ray, float &t, ShadeInfo &s) const {
     // smallest root
     tnew = (-B - root_disc) / (2.0 * A);
 
-    if (tnew < 0.0) {
+    if (tnew < kEpsilon) {
         // try larger root
         tnew = (-B + root_disc) / (2.0 * A);
     }
 
-    if (tnew >= 0.0 && tnew < t) {
+    if (tnew >= kEpsilon && tnew < t) {
         t = tnew;
         s.hit = true;
         s.material_ptr = material_ptr;

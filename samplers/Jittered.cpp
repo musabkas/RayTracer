@@ -2,18 +2,12 @@
 #include "../cameras/Camera.hpp"
 #include "../world/ViewPlane.hpp"
 #include "../utilities/Ray.hpp"
-#include <cstdlib>
-#include <ctime>
+#include <random> // Added for thread-safe RNG
 #include <cmath>
 
 Jittered::Jittered(Camera *c_ptr, ViewPlane *v_ptr, int samples) 
   : Sampler(c_ptr, v_ptr), num_samples(samples) {
-  // Seed the random number generator
-  static bool seeded = false;
-  if (!seeded) {
-    srand(static_cast<unsigned>(time(0)));
-    seeded = true;
-  }
+  // We no longer need the srand() static block here!
 }
 
 Jittered::Jittered(const Jittered& other) : Sampler(other), num_samples(other.num_samples) {
@@ -38,6 +32,13 @@ std::vector<Ray> Jittered::get_rays(int px, int py) const {
   // Weight for each ray (normalized by number of samples)
   float weight = 1.0f / num_samples;
   
+  // --- THREAD-SAFE RNG SETUP ---
+  // thread_local ensures each thread initializes its own independent generator exactly once.
+  thread_local std::random_device rd;
+  thread_local std::mt19937 generator(rd());
+  std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+  // -----------------------------
+
   // Generate jittered samples
   for (int i = 0; i < samples_per_side; i++) {
     for (int j = 0; j < samples_per_side; j++) {
@@ -45,9 +46,9 @@ std::vector<Ray> Jittered::get_rays(int px, int py) const {
       float sub_x = static_cast<float>(i) / samples_per_side;
       float sub_y = static_cast<float>(j) / samples_per_side;
       
-      // Add random jitter within sub-pixel
-      float jitter_x = static_cast<float>(rand()) / RAND_MAX / samples_per_side;
-      float jitter_y = static_cast<float>(rand()) / RAND_MAX / samples_per_side;
+      // Use the thread-safe distribution instead of rand()
+      float jitter_x = distribution(generator) / samples_per_side;
+      float jitter_y = distribution(generator) / samples_per_side;
       
       // Calculate final position within pixel
       float offset_x = sub_x + jitter_x;

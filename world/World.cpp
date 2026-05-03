@@ -1,7 +1,7 @@
 #include "World.hpp"
 #include "../utilities/ShadeInfo.hpp"
 #include "../geometry/Geometry.hpp"
-#include "../geometry/BVHTree.hpp"
+#include "../acceleration/BVHTree.hpp"
 #include "../tracers/Tracer.hpp"
 
 World::World(){
@@ -45,20 +45,38 @@ World::~World() {
 
 // hit objects
 ShadeInfo World::hit_objects(const Ray &ray) const {
+    ShadeInfo s(*this);
+    s.t = 1e5;
+    s.hit = false;
     // Use BVH tree if available, otherwise fall back to linear search
     if (bvh_tree) {
-        return bvh_tree->hit(ray, *this);
+        bvh_tree->hit(ray, s, *this);
+        return s;
     }
     
     // Fallback for scenes without BVH
-    float t = 1e5;
-    ShadeInfo s(*this);
-    s.hit = false;
+    
     
     for (Geometry* geom_ptr : geometry){
-        geom_ptr->hit(ray, t, s);
+        geom_ptr->hit(ray, s.t, s);
     }
     return s;
+}
+
+bool World::is_shadowed(const Ray &ray, float max_t) const {
+    if (bvh_tree) {
+        return bvh_tree->is_shadowed(ray, max_t, *this);
+    }
+    
+    // Fallback
+    for (Geometry* geom_ptr : geometry){
+        float t = max_t;
+        ShadeInfo dummy(*this);
+        if (geom_ptr->hit(ray, t, dummy) && dummy.t > 0.0001f && dummy.t < max_t) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void World::build_bvh() {

@@ -52,7 +52,8 @@ RGBColor Diffuse::path_shade(ShadeInfo& sr) {
         
         if (ndotwi > 0.0f) {
             // Shoot a shadow ray directly into the world's BVH
-            Ray shadow_ray(sr.hit_point + sr.normal * 0.0001f, wi_direct);
+            // Use larger offset to avoid self-intersection with the surface we're leaving from
+            Ray shadow_ray(sr.hit_point + sr.normal * 0.001f, wi_direct);
             ShadeInfo shadow_sr = sr.w->hit_objects(shadow_ray);
 
             // If it hits an object, and that object is closer than the light source, it's blocked
@@ -100,7 +101,7 @@ RGBColor Diffuse::path_shade(ShadeInfo& sr) {
     }
 
     // The Recursive Bounce
-    Ray bounce_ray(sr.hit_point + sr.normal * 0.0001f, wi); 
+    Ray bounce_ray(sr.hit_point + sr.normal * 0.001f, wi); 
     RGBColor L_indirect = sr.w->tracer_ptr->trace_ray(bounce_ray, *(sr.w));
 
     // Extract the (cd * kd) base color

@@ -29,9 +29,9 @@ public:
   BVHNode();
   BVHNode(int lower_idx, int upper_idx);
   
-  // Copy operations
-  BVHNode(const BVHNode &other) = default;
-  BVHNode &operator=(const BVHNode &other) = default;
+  // Copy operations. NOT
+  BVHNode(const BVHNode &other) = delete;
+  BVHNode &operator=(const BVHNode &other) = delete;
 
   // Destructor
   virtual ~BVHNode();
@@ -52,6 +52,9 @@ public:
   int getUpper() const;
 
   // Ray intersection
-  ShadeInfo hit(const Ray &ray, const std::vector<Geometry *> &primitives,
-                const World &world) const;
+  bool hit(const Ray &ray, ShadeInfo &sinfo, const std::vector<Geometry *> &primitives,
+           const std::vector<int> &indices, const World &world) const;
+  // Any hit
+  bool is_shadowed(const Ray &ray, float max_t, const std::vector<Geometry *> &primitives,
+                   const std::vector<int> &indices, const World &world) const;
 };

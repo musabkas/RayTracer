@@ -47,5 +47,9 @@ bool Plane::hit(const Ray &ray, float &t, ShadeInfo &s) const {
 }
 
 BBox Plane::getBBox() const { // unimplemented optimization
-    return BBox();
+    // Planes are infinite, so we use a very large bounding box
+    // This represents the plane's extent for BVH acceleration purposes
+    const float LARGE_EXTENT = 1e6f;
+    return BBox(Point3D(-LARGE_EXTENT, -LARGE_EXTENT, -LARGE_EXTENT), 
+                Point3D(LARGE_EXTENT, LARGE_EXTENT, LARGE_EXTENT));
 }
