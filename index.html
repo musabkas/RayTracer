@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeathTracer | Menger Fractal Showcase</title>
+    <title>Team DASH | Menger Fractal Showcase</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -145,13 +145,22 @@
         }
 
         .hero-image {
-            width: 45%;
+            width: 50%;
+            max-width: 600px;
             aspect-ratio: 1/1;
             border-radius: 20px;
             overflow: hidden;
             border: 1px solid var(--glass-border);
-            box-shadow: 0 0 50px rgba(138, 43, 226, 0.3);
+            box-shadow: 0 0 80px rgba(138, 43, 226, 0.4);
             animation: float 6s ease-in-out infinite;
+            position: relative;
+        }
+
+        .hero-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, transparent, rgba(0,0,0,0.4));
         }
 
         .hero-image img {
@@ -362,6 +371,50 @@
             color: var(--secondary);
         }
 
+        /* Leader Card */
+        .leader-card {
+            border: 1px solid var(--secondary) !important;
+            box-shadow: 0 0 40px rgba(0, 242, 255, 0.1);
+            background: linear-gradient(145deg, var(--surface), #1a1a1a);
+            position: relative;
+            transform: scale(1.02);
+            z-index: 10;
+            overflow: visible !important;
+        }
+
+        .leader-card:hover {
+            transform: scale(1.05) translateY(-10px) !important;
+        }
+
+        .leader-card::before {
+            display: none !important;
+        }
+
+        .leader-card::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            z-index: -1;
+            border-radius: 15px;
+            opacity: 0.5;
+        }
+
+        .leader-tag {
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
         /* Responsive */
         @media (max-width: 968px) {
             .hero { flex-direction: column; text-align: center; height: auto; padding-top: 150px; }
@@ -369,6 +422,7 @@
             .hero h1 { font-size: 3rem; }
             .showcase-container { flex-direction: column; }
             .comparison-grid { grid-template-columns: 1fr; }
+            .leader-card { transform: scale(1); margin-bottom: 1rem; }
         }
     </style>
 </head>
@@ -391,7 +445,7 @@
             <p>A high-performance raytracing engine capable of rendering complex procedural fractals with millions of primitives in seconds.</p>
             <button class="cta-btn" onclick="document.getElementById('concept').scrollIntoView()">Explore Scene</button>
         </div>
-        <div class="hero-image fade-in" style="animation-delay: 0.5s;">
+        <div class="hero-image fade-in" style="animation-delay: 0.3s;">
             <img src="hero.png" alt="Menger Sponge Fractal">
         </div>
     </section>
@@ -503,55 +557,75 @@
 
     <section id="features">
         <div class="section-title">
-            <h2>Implementation Breakdown</h2>
-            <p>A detailed look at our core raytracing capabilities and feature evolutions.</p>
+            <h2>Feature Showcase</h2>
+            <p>A detailed look at the core raytracing capabilities implemented in the engine, from material modeling to advanced sampling techniques.</p>
         </div>
 
-        <div class="feature-row" style="margin-bottom: 4rem;">
-            <h3 style="color: var(--primary); margin-bottom: 1rem; text-align: center;">Musab: Lights & Materials</h3>
-            <div class="comparison-grid">
-                <div class="comparison-item">
-                    <img src="scene_bef.png" alt="Simple Shading">
-                    <div class="comparison-label">Before: Simple Lambertian</div>
-                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; color: var(--text-dim);">build/buildbrdf.cpp</div>
+        <!-- 1. Materials / BRDFs -->
+        <div class="feature-row" style="margin-bottom: 6rem;">
+            <h3 style="color: var(--secondary); margin-bottom: 1.5rem; text-align: center; font-size: 2rem;">Materials / BRDFs</h3>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
+                <div class="comparison-item" style="max-width: 800px; width: 100%;">
+                    <img src="artifacts/brdfs.png" alt="Materials and BRDFs Showcase">
+                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.75rem; background: rgba(0,0,0,0.8); padding: 4px 12px; border-radius: 4px; border: 1px solid var(--primary);">build/buildbrdf.cpp</div>
                 </div>
-                <div class="comparison-item">
-                    <img src="scene_brdf.png" alt="Phong & Metal">
-                    <div class="comparison-label">After: Phong & Multi-Materials</div>
-                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; color: var(--text-dim);">build/buildbrdf.cpp</div>
+                <div style="max-width: 800px; text-align: center;">
+                    <p style="color: var(--text-dim);">This showcase demonstrates our robust BRDF system, featuring materials (from left to right): Diffuse (Lambertian BRDF), Mirror (Perfect Specular BRDF), Metal (Glossy BRDF).</p>
                 </div>
             </div>
         </div>
 
-        <div class="feature-row" style="margin-bottom: 4rem;">
-            <h3 style="color: var(--primary); margin-bottom: 1rem; text-align: center;">Saif: Anti-Aliasing & Shadows</h3>
-            <div class="comparison-grid">
-                <div class="comparison-item">
-                    <img src="scene.png" alt="No Shadows/AA">
-                    <div class="comparison-label">Before: Flat Render</div>
-                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; color: var(--text-dim);">build/buildChapter14.cpp</div>
+        <!-- 2. Lights -->
+        <div class="feature-row" style="margin-bottom: 6rem;">
+            <h3 style="color: var(--secondary); margin-bottom: 1.5rem; text-align: center; font-size: 2rem;">Light Types</h3>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
+                <div class="comparison-item" style="max-width: 800px; width: 100%;">
+                    <img src="artifacts/lights.png" alt="Lights Showcase">
+                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.75rem; background: rgba(0,0,0,0.8); padding: 4px 12px; border-radius: 4px; border: 1px solid var(--primary);">build/buildlights.cpp</div>
                 </div>
-                <div class="comparison-item">
-                    <img src="scene_ch14.png" alt="Shadows & Jittered AA">
-                    <div class="comparison-label">After: Shadow Mapping & Jittered Sampling</div>
-                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; color: var(--text-dim);">build/buildChapter14.cpp</div>
+                <div style="max-width: 800px; text-align: center;">
+                    <p style="color: var(--text-dim);">Our engine supports different types of light sources. In this particular scene the spheres are white, and there is a red point light off to the left, and a green spotlight pointing down on the center from above.</p>
                 </div>
             </div>
         </div>
 
+        <!-- 3. Shadow -->
+        <div class="feature-row" style="margin-bottom: 6rem;">
+            <h3 style="color: var(--secondary); margin-bottom: 1.5rem; text-align: center; font-size: 2rem;">Shadow Occlusion</h3>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <img src="artifacts/hello.png" alt="Without Shadows">
+                    <div class="comparison-label">Before: Basic Tracer</div>
+                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; background: rgba(0,0,0,0.8); padding: 4px 10px; border-radius: 4px;">build/buildHelloWorld.cpp</div>
+                </div>
+                <div class="comparison-item">
+                    <img src="artifacts/shadow.png" alt="With Shadows">
+                    <div class="comparison-label">After: Shadow Tracer</div>
+                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; background: rgba(0,0,0,0.8); padding: 4px 10px; border-radius: 4px; border: 1px solid var(--primary);">build/buildShadow.cpp</div>
+                </div>
+            </div>
+            <div style="margin-top: 2rem; text-align: center;">
+                <p style="color: var(--text-dim);">By implementing a dedicated <strong>Shadow Tracer</strong>, we move from flat lighting to realistic occlusion. The system shoots secondary shadow rays from each hit point toward the light sources, determining if any geometry blocks the path, which results in accurate, hard shadows that ground objects in the scene.</p>
+            </div>
+        </div>
+
+        <!-- 4. Antialiasing -->
         <div class="feature-row">
-            <h3 style="color: var(--primary); margin-bottom: 1rem; text-align: center;">Zuhair: Acceleration & Path Tracing</h3>
+            <h3 style="color: var(--secondary); margin-bottom: 1.5rem; text-align: center; font-size: 2rem;">Anti-Aliasing</h3>
             <div class="comparison-grid">
                 <div class="comparison-item">
-                    <img src="scene_withoutTri_brdf.png" alt="Slow Render">
-                    <div class="comparison-label">Before: Linear Search (Slow)</div>
-                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; color: var(--text-dim);">build/buildDeath.cpp</div>
+                    <img src="artifacts/hello.png" alt="Jagged Edges">
+                    <div class="comparison-label">Before: Single Sample</div>
+                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; background: rgba(0,0,0,0.8); padding: 4px 10px; border-radius: 4px;">build/buildHelloWorld.cpp</div>
                 </div>
                 <div class="comparison-item">
-                    <img src="hero.png" alt="BVH Accelerated">
-                    <div class="comparison-label">After: BVH Accelerated Fractal</div>
-                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; color: var(--text-dim);">build/buildDeath.cpp</div>
+                    <img src="artifacts/antialiasing.png" alt="Smooth Edges">
+                    <div class="comparison-label">After: Jittered Sampling</div>
+                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; background: rgba(0,0,0,0.8); padding: 4px 10px; border-radius: 4px; border: 1px solid var(--primary);">build/buildAntiAliasing.cpp</div>
                 </div>
+            </div>
+            <div style="margin-top: 2rem; text-align: center;">
+                <p style="color: var(--text-dim);">To eliminate "jaggies" on geometric edges, we implemented a <strong>Jittered Multi-Sampling</strong> system. Instead of shooting one ray through the center of a pixel, we subdivide each pixel and shoot multiple rays at randomized positions within the sub-pixels, averaging the result for silky smooth edges.</p>
             </div>
         </div>
     </section>
@@ -564,9 +638,17 @@
             <div class="feature-card">
                 <h3 style="color: var(--accent);">Musab</h3>
                 <ul style="list-style: none; color: var(--text-dim); font-size: 0.9rem;">
-                    <li style="margin-bottom: 8px;">✦ Advanced Material Models (Phong, Metal, Diffuse)</li>
-                    <li style="margin-bottom: 8px;">✦ Complex Lighting Systems (Point, Area, Directional)</li>
-                    <li style="margin-bottom: 8px;">✦ BRDF Implementation & Integration</li>
+                    <li style="margin-bottom: 8px;">✦ Advanced Material Models (Diffuse, Specular, Glossy)</li>
+                    <li style="margin-bottom: 8px;">✦ Complex Lighting Systems (Point, Spotlight)</li>
+                </ul>
+            </div>
+            <div class="feature-card leader-card">
+                <span class="leader-tag">Team Leader</span>
+                <h3 style="color: var(--secondary);">Zuhair</h3>
+                <ul style="list-style: none; color: var(--text-dim); font-size: 0.9rem;">
+                    <li style="margin-bottom: 8px;">✦ Bounding Volume Hierarchy (BVH) Architecture</li>
+                    <li style="margin-bottom: 8px;">✦ Path Tracing Logic & Refraction</li>
+                    <li style="margin-bottom: 8px;">✦ Recursive Geometry Optimization</li>
                 </ul>
             </div>
             <div class="feature-card">
@@ -574,15 +656,6 @@
                 <ul style="list-style: none; color: var(--text-dim); font-size: 0.9rem;">
                     <li style="margin-bottom: 8px;">✦ Anti-Aliasing (Jittered, Random, Regular)</li>
                     <li style="margin-bottom: 8px;">✦ Shadow Tracer Development</li>
-                    <li style="margin-bottom: 8px;">✦ Multi-Sampling Engine</li>
-                </ul>
-            </div>
-            <div class="feature-card">
-                <h3 style="color: var(--accent);">Zuhair</h3>
-                <ul style="list-style: none; color: var(--text-dim); font-size: 0.9rem;">
-                    <li style="margin-bottom: 8px;">✦ Bounding Volume Hierarchy (BVH) Architecture</li>
-                    <li style="margin-bottom: 8px;">✦ Path Tracing Logic & Refraction</li>
-                    <li style="margin-bottom: 8px;">✦ Recursive Geometry Optimization</li>
                 </ul>
             </div>
         </div>
@@ -590,7 +663,7 @@
 
     <footer>
         <div class="logo" style="margin-bottom: 1rem;">DEATHTRACER</div>
-        <p style="color: var(--text-dim); font-size: 0.8rem;">CS440 COMPUTER GRAPHICS | TEAM VECTOR</p>
+        <p style="color: var(--text-dim); font-size: 0.8rem;">CS440 COMPUTER GRAPHICS | TEAM DASH</p>
     </footer>
 
     <script>
