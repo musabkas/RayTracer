@@ -25,6 +25,7 @@
 #include "../materials/Wavy.hpp"
 
 #include "../samplers/Jittered.hpp"
+#include "../samplers/DOFSampler.hpp"
 
 #include "../utilities/Constants.hpp"
 
@@ -391,10 +392,12 @@ World::build(void) {
 
 //   bg_color = RGBColor(0.5, 0.5, 0.5);
     bg_color = black;
+    Perspective* my_cam = new Perspective(0, 0, 0);
 
   set_camera(new Perspective(0, 0, 0));
-  sampler_ptr = new Jittered(camera_ptr, &vplane, 16);
-  set_tracer(new PathTrace(5));
+  sampler_ptr = new Jittered(camera_ptr, &vplane, 64);
+// sampler_ptr = new DOFSampler(my_cam, &vplane, 32, 100.0f, 0.0f);  
+set_tracer(new PathTrace(5));
 
 //   Point3D corner(0, 100, 0);
 //   Vector3D edge1(40, 0, 0);
@@ -415,7 +418,7 @@ World::build(void) {
     // 3. Set the color to a soft, ethereal blue
     RGBColor soft_blue(0.1f, 0.3f, 1.0f);
     
-    RectangularLight* area_light = new RectangularLight(corner, edge1, edge2, soft_blue, 1.0f);
+    RectangularLight* area_light = new RectangularLight(corner, edge1, edge2, soft_blue, 1.5f);
     add_light(area_light);
 
   buildMengerSponge(Point3D(0, 0, 50), 100.0, 3, this);

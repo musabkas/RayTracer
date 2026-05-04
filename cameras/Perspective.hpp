@@ -33,4 +33,5 @@ public:
 
   // Get direction of projection for a point.
   virtual Vector3D get_direction(const Point3D &p) const;
+  Point3D get_pos() const { return pos; }
 };
