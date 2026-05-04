@@ -39,34 +39,41 @@ RGBColor Mirror::shade(const ShadeInfo &sinfo, const std::vector<Light *> &light
     return color;
 }
 
-// RGBColor Mirror::path_shade(ShadeInfo& sr) {
-//     if (sr.depth > 5)
-//         return RGBColor(0, 0, 0);
+RGBColor Mirror::path_shade(ShadeInfo& sr) {
+    if (sr.depth > 5)
+        return RGBColor(0, 0, 0);
 
-//     Vector3D wo = -sr.ray.d;
-//     wo.normalize();
+    Vector3D wo = -sr.ray.d;
+    wo.normalize();
 
-//     Vector3D reflected = -wo + 2.0f * (wo * sr.normal) * sr.normal;
-//     reflected.normalize();
+    // 1. DIRECT LIGHTING: Calculate the shiny highlights from your actual lights
+    RGBColor direct_illumination = shade(sr, sr.w->lights);
 
-//     // Perturb the reflection based on roughness (0 = mirror, 1 = very blurry)
-//     float roughness = 0.3f; // tweak this
+    // 2. INDIRECT LIGHTING: Calculate the reflection of the surrounding scene
+    Vector3D reflected = -wo + 2.0f * (wo * sr.normal) * sr.normal;
+    reflected.normalize();
 
-//     thread_local std::mt19937 generator(std::random_device{}());
-//     std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+    // (Kept your roughness logic, but lowered it so it looks like metal/mirror)
+    float roughness = 0.05f; 
 
-//     Vector3D perturb(dist(generator), dist(generator), dist(generator));
-//     perturb.normalize();
+    thread_local std::mt19937 generator(std::random_device{}());
+    std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
 
-//     Vector3D blurred = reflected + roughness * perturb;
-//     blurred.normalize();
+    Vector3D perturb(dist(generator), dist(generator), dist(generator));
+    perturb.normalize();
 
-//     // If perturbation pushes ray below surface, fall back to perfect reflection
-//     if ((blurred * sr.normal) < 0.0f)
-//         blurred = reflected;
+    Vector3D blurred = reflected + roughness * perturb;
+    blurred.normalize();
 
-//     Ray reflected_ray(sr.hit_point + sr.normal * 0.001f, blurred);
-//     RGBColor incoming = sr.w->tracer_ptr->trace_ray(reflected_ray, *(sr.w), sr.depth + 1);
+    // Prevent rays from clipping inside the geometry
+    if ((blurred * sr.normal) < 0.0f)
+        blurred = reflected;
 
-//     return specular_brdf.get_color() * incoming;
-// }
+    Ray reflected_ray(sr.hit_point + sr.normal * 0.001f, blurred);
+    RGBColor indirect_illumination = sr.w->tracer_ptr->trace_ray(reflected_ray, *(sr.w), sr.depth + 1);
+
+    // 3. COMBINE THEM: Add the shiny highlights to the bounced reflections
+    RGBColor reflection_tint = specular_brdf.get_color();
+    
+    return direct_illumination + (indirect_illumination * reflection_tint);
+}

@@ -21,6 +21,8 @@
 #include "../materials/SpecularDiffuse.hpp"
 #include "../materials/Emissive.hpp"
 #include "../materials/Translucent.hpp"
+#include "../materials/Mirror.hpp"
+#include "../materials/Wavy.hpp"
 
 #include "../samplers/Jittered.hpp"
 
@@ -36,7 +38,8 @@
 #include <ostream>
 
 void addCenterOrb(World* world) {
-    PointLight* pl = new PointLight(1.0f, RGBColor(1.0f, 1.0f, 1.0f), Point3D(0, 20, 50));
+    // PointLight* pl = new PointLight(1.5f, RGBColor(1.0f, 1.0f, 1.0f), Point3D(0, 20, 50));
+    PointLight* pl = new PointLight(2.0f, RGBColor(1.0f, 1.0f, 0.9f), Point3D(0, 20, 50));
     world->add_light(pl);
     return;
 }
@@ -62,7 +65,10 @@ void addDiamondFrame(World* world) {
         );
     };
 
-    Material* hull_mat = new Translucent(RGBColor(0.00f, 0.00f, 1.0f), 1.50f, 0.01f);
+    // Material* hull_mat = new Translucent(RGBColor(0.30f, 0.30f, 1.0f), 1.50f, 1.01f, 1.00f);
+    
+    // Material* hull_mat = new Metal(RGBColor(1.0f, 0.84f, 0.0f), 0.8f, 40.0f); 
+    Material* hull_mat = new WavyMirror(RGBColor(1.0f, 1.0f, 1.0f), 2.5f, 0.4f);
     Material* rib_mat = new Diffuse(RGBColor(0.0f, 0.0f, 0.0f));
 
     auto addDiamondFace = [&](Point3D a, Point3D b, Point3D c) {
@@ -139,7 +145,22 @@ void buildMengerSponge(const Point3D& center, float size, int depth, World* worl
         float b = 0.5 + 0.5 * std::sin(center.z * 0.8);
 
         Sphere* sphere_ptr = new Sphere(center, size * 0.5);
-        sphere_ptr->set_material(new SpecularDiffuse(RGBColor(r, g, b), 0.4f, 2.0f, 4.f));
+
+        // 1. Static counter persists across all recursive calls
+        static int counter = 0;
+
+        // 2. Modulo operator checks if it's the 5th sphere
+        if (counter % 10 == 0) {
+            // Make it Specular (using your commented-out parameters)
+            sphere_ptr->set_material(new Mirror(RGBColor(1.0f, 1.0f, 1.0f), 1.0f));
+        } else {
+            // Make it normal Diffuse
+            sphere_ptr->set_material(new Diffuse(RGBColor(r, g, b)));
+        }
+        
+        // Increment the counter for the next sphere
+        counter++;
+
         world->add_geometry(sphere_ptr);
         return;
     }
@@ -375,13 +396,29 @@ World::build(void) {
   sampler_ptr = new Jittered(camera_ptr, &vplane, 16);
   set_tracer(new PathTrace(5));
 
-  Point3D corner(0, 100, 0);
-  Vector3D edge1(40, 0, 0);
-  Vector3D edge2(0, 0, 40);
-  RectangularLight* area_light = new RectangularLight(corner, edge1, edge2, RGBColor(1.0, 1.0, 1.0), 0.5);
-  add_light(area_light);
+//   Point3D corner(0, 100, 0);
+//   Vector3D edge1(40, 0, 0);
+//   Vector3D edge2(0, 0, 40);
+//   RectangularLight* area_light = new RectangularLight(corner, edge1, edge2, RGBColor(1.0, 1.0, 1.0), 1.0);
+//   add_light(area_light);
+    // 1. Move the corner way down below the sponge (Y = -80)
+    // We offset X and Z to center the 40x40 light directly under the sponge at (0, 0, 50)
+    Point3D corner(-20, -80, 30); 
+    
+    // 2. CRITICAL: Swap edge1 and edge2! 
+    // In area lights, the normal vector (which way it shines) is calculated using 
+    // the Cross Product (edge1 x edge2). 
+    // Z crossed with X points UP (+Y). X crossed with Z points DOWN (-Y).
+    Vector3D edge1(0, 0, 40); // Swapped to Z
+    Vector3D edge2(40, 0, 0); // Swapped to X
+    
+    // 3. Set the color to a soft, ethereal blue
+    RGBColor soft_blue(0.1f, 0.3f, 1.0f);
+    
+    RectangularLight* area_light = new RectangularLight(corner, edge1, edge2, soft_blue, 1.0f);
+    add_light(area_light);
 
-  buildMengerSponge(Point3D(0, 0, 50), 100.0, 4, this);
+  buildMengerSponge(Point3D(0, 0, 50), 100.0, 3, this);
 
 //   buildMandalaShell(this, Point3D(0, 0, 50), 100.0f);
     // buildMengerShell(this, Point3D(0, 0, 50), 100.0f);     // solid shell with holes over it

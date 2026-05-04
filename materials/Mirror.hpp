@@ -24,5 +24,5 @@ public:
   /* Returned shade is glossy */
   virtual RGBColor shade(const ShadeInfo &sinfo, const std::vector<Light *> &lights) const override;
 
-//   virtual RGBColor path_shade(ShadeInfo& sinfo) override;
+  virtual RGBColor path_shade(ShadeInfo& sinfo) override;
 };
