@@ -6,13 +6,40 @@
 
 #include "../lights/Light.hpp"
 #include <cmath>
+#include "../utilities/Constants.hpp"
 
 WavyMirror::WavyMirror(const RGBColor& tint, float freq, float amp)
-    : tint_(tint), frequency_(freq), amplitude_(amp) {}
+    : Material(), tint_(tint), frequency_(freq), amplitude_(amp) {}
 
 RGBColor WavyMirror::shade(const ShadeInfo& sinfo, const std::vector<Light*>& lights) const {
-    // Basic fallback for non-path tracers. We keep it dark because it's a pure mirror.
-    return RGBColor(0.0f);
+    RGBColor L(0.0f);
+
+    // 1. Calculate the distorted normal for the waves
+    Point3D p = sinfo.hit_point;
+    float distort = amplitude_ * std::sin(frequency_ * p.x) * std::cos(frequency_ * p.y);
+    Vector3D wavy_normal = sinfo.normal + Vector3D(distort, distort, distort);
+    wavy_normal.normalize();
+
+    // 2. Setup viewer direction (from hit point back to camera)
+    Vector3D wo = -sinfo.ray.d;
+
+    for (Light* light : lights) {
+        // 3. Get direction to light and its radiance
+        Vector3D wi = light->get_direction(sinfo.hit_point); 
+        float ndotwi = wavy_normal * wi;
+
+        if (ndotwi > 0.0f) {
+            // 4. Calculate Phong Specular Highlight (The 'glint' of the light)
+            Vector3D r = (wavy_normal * 2.0f * ndotwi) - wi;
+            float rdotwo = r * wo;
+            
+            if (rdotwo > 0.0f) {
+                // Use the tint_ variable found in your .hpp
+                L += tint_ * std::pow(rdotwo, 50.0f) * light->L(wi);
+            }
+        }
+    }
+    return L;
 }
 
 RGBColor WavyMirror::path_shade(ShadeInfo& sr) {
