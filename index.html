@@ -145,9 +145,9 @@
         }
 
         .hero-image {
-            width: 50%;
-            max-width: 600px;
-            aspect-ratio: 1/1;
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 16/9;
             border-radius: 20px;
             overflow: hidden;
             border: 1px solid var(--glass-border);
@@ -166,7 +166,7 @@
         .hero-image img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: fill;
         }
 
         .cta-btn {
@@ -415,6 +415,42 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
+        /* Tabs */
+        .image-switcher {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            color: var(--text-dim);
+            padding: 10px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            backdrop-filter: blur(5px);
+            z-index: 10;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 25px rgba(138, 43, 226, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
         /* Responsive */
         @media (max-width: 968px) {
             .hero { flex-direction: column; text-align: center; height: auto; padding-top: 150px; }
@@ -445,8 +481,14 @@
             <p>A high-performance raytracing engine capable of rendering complex procedural fractals with millions of primitives in seconds.</p>
             <button class="cta-btn" onclick="document.getElementById('concept').scrollIntoView()">Explore Scene</button>
         </div>
-        <div class="hero-image fade-in" style="animation-delay: 0.3s;">
-            <img src="hero.png" alt="Menger Sponge Fractal">
+        <div class="hero-visual-container fade-in" style="animation-delay: 0.3s; flex: 1.2; display: flex; flex-direction: column; align-items: center;">
+            <div class="hero-image" style="margin-bottom: 0;">
+                <img src="highres.png" alt="Menger Sponge Fractal" id="hero-main-img">
+            </div>
+            <div class="image-switcher">
+                <button class="tab-btn active" onclick="updateHero('high', this)">High Res</button>
+                <button class="tab-btn" onclick="updateHero('low', this)">Low Res</button>
+            </div>
         </div>
     </section>
 
@@ -458,19 +500,20 @@
 
         <div class="showcase-container">
             <div class="showcase-visual fade-in">
-                <img src="hero.png" alt="Fractal Detail" style="width: 100%; border-radius: 10px;">
+                <img src="menger-sponge.webp" alt="Fractal Detail" style="width: 100%; border-radius: 10px;">
             </div>
             <div class="showcase-text fade-in">
                 <h3>Construction Pattern</h3>
-                <p>The scene follows the <strong>Menger Sponge</strong> fractal pattern. The space is divided into a 3x3x3 grid (27 sub-cubes). The main pattern is the removal of the 7 cubes located at the center of the grid and the centers of each face.</p>
-                <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-dim);">This recursive logic is implemented in <code>build/buildDeath.cpp</code>, where at each level, 20 new sub-fractals are spawned until the base case (Depth 0) is reached, placing a colored sphere with psychedelic shading.</p>
+                <p>The scene follows the <strong>Menger Sponge</strong> fractal pattern, constructed by recursively dividing space into 3x3x3 grids and removing the center and face-center cells. At Depth 5, this results in over 3.2 million unique spheres, each rendered with dynamic psychedelic shading.</p>
+                <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-dim);">In our implementation, at the heart of the fractal is a reflective <strong>Octahedral Diamond</strong>—a complex geometry made out of 64 triangles. </p>
+                <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-dim);">The lighting environment is driven by a dual-system approach: a high-intensity white <strong>Point Light</strong> positioned near the center to catch specular highlights, and a large <strong>Area Light</strong> overhead that provides soft, realistic shadows across the millions of primitives.</p>
                 <div class="stats">
                     <div class="stat-item">
-                        <span class="stat-val">8,000</span>
-                        <span class="stat-label">Max Primitives</span>
+                        <span class="stat-val" style="font-size: 1.4rem;">3.2M + 64</span>
+                        <span class="stat-label">Total Primitives</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-val">20<sup>d</sup></span>
+                        <span class="stat-val">20<sup>5</sup></span>
                         <span class="stat-label">Growth Rate</span>
                     </div>
                 </div>
@@ -484,76 +527,38 @@
             <p>Our BVH implementation transforms an O(N) intersection problem into an O(log N) traversal.</p>
         </div>
 
-        <div class="tables-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem;">
-            <div class="table-card" style="background: var(--surface); padding: 2rem; border-radius: 15px; border: 1px solid var(--glass-border);">
-                <img src="lowres.png" alt="low res image" style="width: 100%; border-radius: 10px;">
-                <h3 style="margin-bottom: 1.5rem; color: var(--secondary); font-size: 1rem;">Low Resolution (480x360)</h3>
-                <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+        <div class="table-card fade-in" style="background: var(--surface); padding: 3rem; border-radius: 15px; border: 1px solid var(--glass-border); max-width: 1000px; margin: 3rem auto 0;">
+            <h3 style="margin-bottom: 2rem; color: var(--secondary); text-align: center; font-size: 1.5rem;">Acceleration Benchmark Comparison</h3>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
                     <thead>
                         <tr style="border-bottom: 1px solid var(--glass-border); text-align: left;">
-                            <th style="padding: 10px;">Depth</th>
-                            <th style="padding: 10px;">Primitives</th>
-                            <th style="padding: 10px;">Default</th>
-                            <th style="padding: 10px;">Accel</th>
+                            <th style="padding: 15px;">Resolution</th>
+                            <th style="padding: 15px;">Recursive Depth</th>
+                            <th style="padding: 15px;">Primitive Count</th>
+                            <th style="padding: 15px;">Naive Render (Est.)</th>
+                            <th style="padding: 15px;">BVH Accelerated</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td style="padding: 10px;">5</td>
-                            <td style="padding: 10px;">3,200,064</td>
-                            <td style="padding: 10px;">6.5 days</td>
-                            <td style="padding: 10px; color: var(--secondary);">82.736 s</td>
-                        </tr>
-                        <!-- <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td style="padding: 10px;">2</td>
-                            <td style="padding: 10px;">400</td>
-                            <td style="padding: 10px;">12.5</td>
-                            <td style="padding: 10px; color: var(--secondary);">0.4</td>
+                            <td style="padding: 15px;">Low (480x360)</td>
+                            <td style="padding: 15px;">5</td>
+                            <td style="padding: 15px;">3,200,064</td>
+                            <td style="padding: 15px;">6.5 days</td>
+                            <td style="padding: 15px; color: var(--secondary); font-weight: 600;">82.736 s</td>
                         </tr>
                         <tr>
-                            <td style="padding: 10px;">3</td>
-                            <td style="padding: 10px;">8,000</td>
-                            <td style="padding: 10px;">240.0</td>
-                            <td style="padding: 10px; color: var(--secondary);">1.8</td>
-                        </tr> -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="table-card" style="background: var(--surface); padding: 2rem; border-radius: 15px; border: 1px solid var(--glass-border);">
-                <img src="highres.png" alt="high res image" style="width: 100%; border-radius: 10px;">
-                <h3 style="margin-bottom: 1.5rem; color: var(--secondary); font-size: 1rem;">High Resolution (1920x1080)</h3>
-                <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid var(--glass-border); text-align: left;">
-                            <th style="padding: 10px;">Depth</th>
-                            <th style="padding: 10px;">Primitives</th>
-                            <th style="padding: 10px;">Default (s)</th>
-                            <th style="padding: 10px;">Accel (s)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td style="padding: 10px;">5</td>
-                            <td style="padding: 10px;">3,200,064</td>
-                            <td style="padding: 10px;">86.4 days</td>
-                            <td style="padding: 10px; color: var(--secondary);">17.4 mins</td>
-                        </tr>
-                        <!-- <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td style="padding: 10px;">2</td>
-                            <td style="padding: 10px;">400</td>
-                            <td style="padding: 10px;">85.0</td>
-                            <td style="padding: 10px; color: var(--secondary);">2.1</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px;">3</td>
-                            <td style="padding: 10px;">8,000</td>
-                            <td style="padding: 10px;">1,800.0</td>
-                            <td style="padding: 10px; color: var(--secondary);">15.2</td> -->
+                            <td style="padding: 15px;">High (1920x1080)</td>
+                            <td style="padding: 15px;">5</td>
+                            <td style="padding: 15px;">3,200,064</td>
+                            <td style="padding: 15px;">86.4 days</td>
+                            <td style="padding: 15px; color: var(--secondary); font-weight: 600;">17.4 mins</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+            <p style="margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-dim); text-align: center;">* Naive unaccelerated rendering estimates based on single-threaded linear intersection testing.</p>
         </div>
     </section>
 
@@ -630,6 +635,20 @@
                 <p style="color: var(--text-dim);">To eliminate "jaggies" on geometric edges, we implemented a <strong>Jittered Multi-Sampling</strong> system. Instead of shooting one ray through the center of a pixel, we subdivide each pixel and shoot multiple rays at randomized positions within the sub-pixels, averaging the result for silky smooth edges.</p>
             </div>
         </div>
+
+        <!-- 5. Path Tracing -->
+        <div class="feature-row" style="margin-top: 6rem;">
+            <h3 style="color: var(--secondary); margin-bottom: 1.5rem; text-align: center; font-size: 2rem;">Path Tracing</h3>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
+                <div class="comparison-item" style="max-width: 800px; width: 100%;">
+                    <img src="pathtracing.png" alt="Path Tracing Showcase">
+                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.75rem; background: rgba(0,0,0,0.8); padding: 4px 12px; border-radius: 4px; border: 1px solid var(--primary);">build/buildPathTracer.cpp</div>
+                </div>
+                <div style="max-width: 800px; text-align: center;">
+                    <p style="color: var(--text-dim);">Our engine features a full <strong>Path Tracer</strong> implementation, enabling global illumination effects like soft shadows, indirect lighting, and complex light transport. By recursively sampling random directions on surfaces and accumulating radiance, we achieve a level of realism that standard raycasting cannot provide.</p>
+                </div>
+            </div>
+        </div>
     </section>
 
     <section id="contribution">
@@ -677,9 +696,21 @@
             });
         }, { threshold: 0.1 });
 
-        document.querySelectorAll('.feature-card, .showcase-text, .showcase-visual, .section-title, .contribution-outline').forEach(el => {
+        document.querySelectorAll('.feature-card, .showcase-text, .showcase-visual, .section-title, .contribution-outline, .table-card, .feature-row').forEach(el => {
             observer.observe(el);
         });
+
+        function updateHero(res, btn) {
+            const img = document.getElementById('hero-main-img');
+            const btns = document.querySelectorAll('.tab-btn');
+            
+            // Update image source
+            img.src = res === 'high' ? 'highres.png' : 'lowres.png';
+            
+            // Update active state
+            btns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
     </script>
 </body>
 </html>
