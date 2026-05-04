@@ -161,12 +161,14 @@
             position: absolute;
             inset: 0;
             background: radial-gradient(circle at center, transparent, rgba(0,0,0,0.4));
+            pointer-events: none;
         }
 
         .hero-image img {
             width: 100%;
             height: 100%;
             object-fit: fill;
+            transition: opacity 0.3s ease;
         }
 
         .cta-btn {
@@ -367,7 +369,7 @@
         }
 
         .contribution-list li::before {
-            content: '✦';
+            content: '›';
             color: var(--secondary);
         }
 
@@ -460,6 +462,55 @@
             .comparison-grid { grid-template-columns: 1fr; }
             .leader-card { transform: scale(1); margin-bottom: 1rem; }
         }
+
+        /* Modal / Lightbox */
+        .modal {
+            position: fixed;
+            z-index: 2000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            cursor: zoom-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            
+            /* Animation */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+            box-shadow: 0 0 50px rgba(138, 43, 226, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .hero-image img, .comparison-item img, .showcase-visual img {
+            cursor: zoom-in;
+            transition: filter 0.3s ease;
+        }
+
+        .hero-image img:hover, .comparison-item img:hover, .showcase-visual img:hover {
+            filter: brightness(1.1);
+        }
     </style>
 </head>
 <body>
@@ -479,7 +530,7 @@
             <span class="hero-tag">CS440 PROJECT 2</span>
             <h1>Tracing the Infinite Labyrinth</h1>
             <p>A high-performance raytracing engine capable of rendering complex procedural fractals with millions of primitives in seconds.</p>
-            <button class="cta-btn" onclick="document.getElementById('concept').scrollIntoView()">Explore Scene</button>
+            <button class="cta-btn" onclick="document.getElementById('concept').scrollIntoView()">View Showcase</button>
         </div>
         <div class="hero-visual-container fade-in" style="animation-delay: 0.3s; flex: 1.2; display: flex; flex-direction: column; align-items: center;">
             <div class="hero-image" style="margin-bottom: 0;">
@@ -642,10 +693,10 @@
             <div style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
                 <div class="comparison-item" style="max-width: 800px; width: 100%;">
                     <img src="pathtracing.png" alt="Path Tracing Showcase">
-                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.75rem; background: rgba(0,0,0,0.8); padding: 4px 12px; border-radius: 4px; border: 1px solid var(--primary);">build/buildPathTracer.cpp</div>
+                    <div style="position: absolute; top: 10px; right: 10px; font-size: 0.75rem; background: rgba(0,0,0,0.8); padding: 4px 12px; border-radius: 4px; border: 1px solid var(--primary);">build/buildShowcase.cpp</div>
                 </div>
                 <div style="max-width: 800px; text-align: center;">
-                    <p style="color: var(--text-dim);">Our engine features a full <strong>Path Tracer</strong> implementation, enabling global illumination effects like soft shadows, indirect lighting, and complex light transport. By recursively sampling random directions on surfaces and accumulating radiance, we achieve a level of realism that standard raycasting cannot provide.</p>
+                    <p style="color: var(--text-dim);">Our engine features a full <strong>Path Tracer</strong> implementation, enabling global illumination effects like soft shadows, indirect lighting, and complex light transport. The showcase above highlights various material models (left to right): <strong>Diffuse</strong>, <strong>SpecularDiffuse</strong>, <strong>Metal</strong>, <strong>Mirror</strong>, and <strong>Wavy Mirror</strong>.</p>
                 </div>
             </div>
         </div>
@@ -659,24 +710,23 @@
             <div class="feature-card">
                 <h3 style="color: var(--accent);">Musab</h3>
                 <ul style="list-style: none; color: var(--text-dim); font-size: 0.9rem;">
-                    <li style="margin-bottom: 8px;">✦ Advanced Material Models (Diffuse, Specular, Glossy)</li>
-                    <li style="margin-bottom: 8px;">✦ Complex Lighting Systems (Point, Spotlight)</li>
+                    <li style="margin-bottom: 8px;">› Advanced Material Models (Diffuse, Specular, Glossy)</li>
+                    <li style="margin-bottom: 8px;">› Complex Lighting Systems (Point, Spotlight)</li>
                 </ul>
             </div>
             <div class="feature-card leader-card">
                 <span class="leader-tag">Team Leader</span>
                 <h3 style="color: var(--secondary);">Zuhair</h3>
                 <ul style="list-style: none; color: var(--text-dim); font-size: 0.9rem;">
-                    <li style="margin-bottom: 8px;">✦ Bounding Volume Hierarchy (BVH) Architecture</li>
-                    <li style="margin-bottom: 8px;">✦ Path Tracing Logic & Refraction</li>
-                    <li style="margin-bottom: 8px;">✦ Recursive Geometry Optimization</li>
+                    <li style="margin-bottom: 8px;">› Bounding Volume Hierarchy (BVH) Architecture</li>
+                    <li style="margin-bottom: 8px;">› Path Tracing Logic & Refraction</li>
                 </ul>
             </div>
             <div class="feature-card">
                 <h3 style="color: var(--accent);">Saif</h3>
                 <ul style="list-style: none; color: var(--text-dim); font-size: 0.9rem;">
-                    <li style="margin-bottom: 8px;">✦ Anti-Aliasing (Jittered, Random, Regular)</li>
-                    <li style="margin-bottom: 8px;">✦ Shadow Tracer Development</li>
+                    <li style="margin-bottom: 8px;">› Anti-Aliasing (Jittered, Random, Regular)</li>
+                    <li style="margin-bottom: 8px;">› Shadow Tracer Development</li>
                 </ul>
             </div>
         </div>
@@ -686,6 +736,11 @@
         <div class="logo" style="margin-bottom: 1rem;">DEATHTRACER</div>
         <p style="color: var(--text-dim); font-size: 0.8rem;">CS440 COMPUTER GRAPHICS | TEAM DASH</p>
     </footer>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal" onclick="this.classList.remove('active')">
+        <img class="modal-content" id="modalImg">
+    </div>
 
     <script>
         const observer = new IntersectionObserver((entries) => {
@@ -704,13 +759,35 @@
             const img = document.getElementById('hero-main-img');
             const btns = document.querySelectorAll('.tab-btn');
             
-            // Update image source
-            img.src = res === 'high' ? 'highres.png' : 'lowres.png';
+            // Add a quick fade effect
+            img.style.opacity = '0';
             
-            // Update active state
-            btns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            setTimeout(() => {
+                // Update image source
+                img.src = res === 'high' ? 'highres.png' : 'lowres.png';
+                img.onload = () => img.style.opacity = '1';
+                
+                // Update active state
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }, 200);
         }
+
+        // Lightbox Logic
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImg');
+
+        // Close on click anywhere
+        modal.onclick = () => modal.classList.remove('active');
+
+        // Global click listener for images
+        document.body.addEventListener('click', (e) => {
+            const img = e.target.closest('.hero-image img, .comparison-item img, .showcase-visual img');
+            if (img) {
+                modalImg.src = img.src;
+                modal.classList.add('active');
+            }
+        });
     </script>
 </body>
 </html>
