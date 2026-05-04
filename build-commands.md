@@ -1,41 +1,38 @@
-### Windows
+# Build instructions
+Building requires gcc (not clang). Use g++-15 (or whichever version you have installed).
 
+# Build Commands
 Hello World:
 ```
-g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp tracers/*.cpp build/buildHelloWorld.cpp -o raytracer.exe
+g++-15 -O3 -fopenmp -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp lights/*.cpp tracers/*.cpp acceleration/*.cpp build/buildHelloWorld.cpp -o hello.out
 ```
 
-Mvp:
+BRDFs:
 ```
-g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp tracers/*.cpp build/buildMvp.cpp -o raytracer.exe
-```
-
-Chapter 14:
-```
-g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp tracers/*.cpp build/buildChapter14.cpp -o raytracer.exe
-```
-BRDF w/ Lights:
-```
-g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp lights/*.cpp tracers/*.cpp build/buildbrdf.cpp -o raytracer.exe
+g++-15 -O3 -fopenmp -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp lights/*.cpp tracers/*.cpp acceleration/*.cpp build/buildbrdf.cpp -o brdf.out
 ```
 
-### Mac/Linux
-Hello World:
+Lights:
 ```
-g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp tracers/*.cpp build/buildHelloWorld.cpp -o raytracer.out
-```
-
-Mvp:
-```
-g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp tracers/*.cpp build/buildMvp.cpp -o raytracer.out
+g++-15 -O3 -fopenmp -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp lights/*.cpp tracers/*.cpp acceleration/*.cpp build/buildlights.cpp -o lights.out
 ```
 
-Chapter 14:
+Anti-Aliasing:
 ```
-g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp tracers/*.cpp build/buildChapter14.cpp -o raytracer.out
+g++-15 -O3 -fopenmp -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp lights/*.cpp tracers/*.cpp acceleration/*.cpp build/buildAntiAliasing.cpp -o AntiAliasing.out
 ```
 
-BRDF w/ Lights:
+Shadows:
 ```
-g++ -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp lights/*.cpp tracers/*.cpp build/buildbrdf.cpp -o raytracer.out
+g++-15 -O3 -fopenmp -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp lights/*.cpp tracers/*.cpp acceleration/*.cpp build/buildShadow.cpp -o shadow.out
+```
+
+Path Tracing:
+```
+g++-15 -O3 -fopenmp -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp lights/*.cpp tracers/*.cpp acceleration/*.cpp build/buildPathTrace.cpp -o pathtrace.out
+```
+
+Menger Sponge:
+```
+g++-15 -O3 -fopenmp -g raytracer.cpp world/*.cpp utilities/*.cpp geometry/*.cpp cameras/*.cpp image/*.cpp samplers/*.cpp BRDF/*.cpp materials/*.cpp lights/*.cpp tracers/*.cpp acceleration/*.cpp build/buildDeath.cpp -o deathtracer.out
 ```

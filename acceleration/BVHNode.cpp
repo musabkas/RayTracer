@@ -92,7 +92,7 @@ bool BVHNode::is_shadowed(const Ray &ray, float max_t, const std::vector<Geometr
       ShadeInfo dummy_sinfo(world);
       
       // FIX: Use the indices array to look up the correct, sorted primitive
-      if (primitives[indices[i]]->hit(ray, t, dummy_sinfo) && dummy_sinfo.t > 0.0001f && dummy_sinfo.t < max_t) {
+      if (primitives[indices[i]]->hit(ray, t, dummy_sinfo) && dummy_sinfo.t > kEpsilon && dummy_sinfo.t < max_t) {
           return true; // Any hit!
       }
     }

@@ -72,7 +72,7 @@ bool World::is_shadowed(const Ray &ray, float max_t) const {
     for (Geometry* geom_ptr : geometry){
         float t = max_t;
         ShadeInfo dummy(*this);
-        if (geom_ptr->hit(ray, t, dummy) && dummy.t > 0.0001f && dummy.t < max_t) {
+        if (geom_ptr->hit(ray, t, dummy) && dummy.t > kEpsilon && dummy.t < max_t) {
             return true;
         }
     }

@@ -2,7 +2,7 @@
 /**
    This builds a simple scene that consists of a sphere, a triangle, and a
    plane.
-   Parallel viewing is used with NO jittered sampling (Simple sampler).
+   Parallel viewing is used with Jittered sampling per pixel for Anti-Aliasing (AA).
    No shadows are rendered (Basic tracer).
 */
 
@@ -14,7 +14,7 @@
 
 #include "../materials/Cosine.hpp"
 
-#include "../samplers/Simple.hpp"
+#include "../samplers/Jittered.hpp"
 
 #include "../utilities/Constants.hpp"
 
@@ -38,7 +38,7 @@ World::build(void) {
   
   // Camera and sampler.
   set_camera(new Perspective(0, 0, 20));
-  sampler_ptr = new Simple(camera_ptr, &vplane);
+  sampler_ptr = new Jittered(camera_ptr, &vplane, 16);
   set_tracer(new Basic());
 	
   // sphere

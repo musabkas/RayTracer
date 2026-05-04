@@ -3,7 +3,7 @@
    This builds a simple scene that consists of a sphere, a triangle, and a
    plane.
    Parallel viewing is used with NO jittered sampling (Simple sampler).
-   No shadows are rendered (Basic tracer).
+   Shadows are enabled using the Shadow tracer and a PointLight.
 */
 
 #include "../cameras/Perspective.hpp"
@@ -12,14 +12,16 @@
 #include "../geometry/Sphere.hpp"
 #include "../geometry/Triangle.hpp"
 
-#include "../materials/Cosine.hpp"
+#include "../materials/Diffuse.hpp"
 
 #include "../samplers/Simple.hpp"
+
+#include "../lights/PointLight.hpp"
 
 #include "../utilities/Constants.hpp"
 
 #include "../world/World.hpp"
-#include "../tracers/Basic.hpp"
+#include "../tracers/Shadow.hpp"
 
 void
 World::build(void) {
@@ -39,11 +41,14 @@ World::build(void) {
   // Camera and sampler.
   set_camera(new Perspective(0, 0, 20));
   sampler_ptr = new Simple(camera_ptr, &vplane);
-  set_tracer(new Basic());
+  set_tracer(new Shadow());
+
+  // Add a light source to create shadows
+  add_light(new PointLight(2.0, white, Point3D(10, 10, 20)));
 	
   // sphere
   Sphere* sphere_ptr = new Sphere(Point3D(-3, 2, 0), 5); 
-  sphere_ptr->set_material(new Cosine(red));
+  sphere_ptr->set_material(new Diffuse(red));
   add_geometry(sphere_ptr);
   
   // triangle
@@ -51,11 +56,11 @@ World::build(void) {
   Point3D b(14, -1, 0); 
   Point3D c(8.5, 5, 0.5); 
   Triangle* triangle_ptr = new Triangle(a, b, c);
-  triangle_ptr->set_material(new Cosine(blue));
+  triangle_ptr->set_material(new Diffuse(blue));
   add_geometry(triangle_ptr);
 
   // plane
   Plane* plane_ptr = new Plane(Point3D(0, 1, 0), Vector3D(0, 10, 2)); 
-  plane_ptr->set_material(new Cosine(green));  // green
+  plane_ptr->set_material(new Diffuse(green));  // green
   add_geometry(plane_ptr);
 }

@@ -85,6 +85,9 @@ int main(int argc, char **argv) {
   }
   
   std::cout << "\n";
+  auto current_time = std::chrono::high_resolution_clock::now();
+  auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
+  std::cout << "Time taken: " << elapsed / 1000.0 << " seconds" << std::endl;
   
   // Write image to file.
   image.write_png("scene.png");

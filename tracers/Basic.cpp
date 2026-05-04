@@ -12,3 +12,7 @@ RGBColor Basic::trace_ray(const Ray &ray, const World &world) const {
     return world.bg_color;
   }
 }
+
+RGBColor Basic::trace_ray(const Ray &ray, const World &world, int depth) const {
+  return trace_ray(ray, world);
+}

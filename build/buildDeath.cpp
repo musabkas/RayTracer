@@ -373,7 +373,7 @@ World::build(void) {
 
   set_camera(new Perspective(0, 0, 0));
   sampler_ptr = new Jittered(camera_ptr, &vplane, 16);
-  set_tracer(new PathTrace());
+  set_tracer(new PathTrace(5));
 
   Point3D corner(0, 100, 0);
   Vector3D edge1(40, 0, 0);

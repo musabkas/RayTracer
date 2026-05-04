@@ -18,4 +18,5 @@ public:
 
   // Trace a single ray through the world
   RGBColor trace_ray(const Ray &ray, const World &world) const override;
+  RGBColor trace_ray(const Ray &ray, const World &world, int depth) const override;
 };

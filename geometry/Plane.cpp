@@ -32,7 +32,7 @@ std::string Plane::to_string() const {
 
 bool Plane::hit(const Ray &ray, float &t, ShadeInfo &s) const {
     float tnew = (a - ray.o) * n / (ray.d * n);
-    if (tnew >= 0 && tnew < t) {
+    if (tnew >= kEpsilon && tnew < t) {
         t = tnew;
         s.hit = true;
         s.material_ptr = material_ptr;

@@ -58,7 +58,7 @@ bool Triangle::hit(const Ray &ray, float &t, ShadeInfo &s) const {
     float gamma = (a*(h*k - g*l) + d*(g*i - e*k) + c*(e*l - h*i)) / den;
     float tnew = (a*(f*l - h*j) + d*(h*i - e*l) + c*(e*j - f*i)) / den;
 
-    if (tnew >= 0 && tnew < t && 0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1 && beta + gamma <= 1) {
+    if (tnew >= kEpsilon && tnew < t && 0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1 && beta + gamma <= 1) {
         t = tnew;
         s.hit = true;
         s.material_ptr = material_ptr;
